@@ -1,0 +1,9 @@
+S:\Godot\BDCC C#\.mono\temp\obj\Debug\BDCC C#.csproj.AssemblyReference.cache
+S:\Godot\BDCC C#\.mono\temp\obj\Debug\BDCC C#.GeneratedMSBuildEditorConfig.editorconfig
+S:\Godot\BDCC C#\.mono\temp\obj\Debug\BDCC C#.AssemblyInfoInputs.cache
+S:\Godot\BDCC C#\.mono\temp\obj\Debug\BDCC C#.AssemblyInfo.cs
+S:\Godot\BDCC C#\.mono\temp\obj\Debug\BDCC C#.csproj.CoreCompileInputs.cache
+S:\Godot\BDCC C#\.mono\temp\bin\Debug\BDCC C#.dll
+S:\Godot\BDCC C#\.mono\temp\bin\Debug\BDCC C#.pdb
+S:\Godot\BDCC C#\.mono\temp\obj\Debug\BDCC C#.dll
+S:\Godot\BDCC C#\.mono\temp\obj\Debug\BDCC C#.pdb

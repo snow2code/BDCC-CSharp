@@ -1,0 +1,2904 @@
+using Godot;
+using System.Collections.Generic;
+
+public partial class GlobalRegistry : Node
+{
+	private int game_version_major = 0;
+	private int game_version_minor = 1;
+	private int game_version_revision = 11;
+	private string game_version_suffix = "fix1";
+	
+	// Settings \\
+	public static bool gles2Mode = false;
+	
+	// Things to not touch in save files and shit \\
+	public static int currentUniqueID = 0;
+	public static int currentChildUniqueID = 0;
+	public static int currentNPCUniqueID = 0;
+	public int currentTFID = 0;
+
+	// Misc \\
+	public static int CurrentSave = 1;
+	public Dictionary<string, string> pathToIDCache = new Dictionary<string, string>();
+	public Dictionary<string, string> IDToPathCache = new Dictionary<string, string>();
+	
+	public Dictionary<string, List<string>> contributorsCredits = new Dictionary<string, List<string>>
+	{
+		["Max-Maxou"] = new List<string>
+		{
+			"chastity cage sprites",
+			"android suit",
+			"engineer uniform",
+			"damaged uniforms",
+		},
+		["Firi"] = new List<string>
+		{
+			"code",
+			"[url=https://github.com/Alexofp/BDCC/pull/10]#1[/url]",
+			"[url=https://github.com/Alexofp/BDCC/pull/11]#2[/url]",
+			"[url=https://github.com/Alexofp/BDCC/pull/12]#3[/url]",
+			"[url=https://github.com/Alexofp/BDCC/pull/13]#4[/url]",
+			"[url=https://github.com/Alexofp/BDCC/pull/14]#5[/url]",
+		},
+		["Niel"] = new List<string>
+		{
+			"code",
+			"[url=https://github.com/Alexofp/BDCC/pull/17]#1[/url]",
+		},
+		["PeteTimesSix"] = new List<string>
+		{
+			"visible chains",
+			"[url=https://github.com/Alexofp/BDCC/pull/25]#1[/url]",
+			"[url=https://github.com/Alexofp/BDCC/pull/26]#2[/url]",
+			"[url=https://github.com/Alexofp/BDCC/pull/27]#3[/url]",
+			"[url=https://github.com/Alexofp/BDCC/pull/29]#4[/url]",
+			"[url=https://github.com/Alexofp/BDCC/pull/30]#5[/url]",
+			"[url=https://github.com/Alexofp/BDCC/pull/31]#6[/url]",
+			"[url=https://github.com/Alexofp/BDCC/pull/33]#7[/url]",
+			"[url=https://github.com/Alexofp/BDCC/pull/35]#8[/url]",
+			"[url=https://github.com/Alexofp/BDCC/pull/36]#9[/url]",
+			"[url=https://github.com/Alexofp/BDCC/pull/41]#10[/url]",
+			"[url=https://github.com/Alexofp/BDCC/pull/55]#11[/url]",
+		},
+		["Rayforward"] = new List<string>
+		{
+			"[url=https://github.com/Alexofp/BDCC/pull/34]#1[/url]",
+			"[url=https://github.com/Alexofp/BDCC/pull/37]#2[/url]",
+			"[url=https://github.com/Alexofp/BDCC/pull/40]#3[/url]",
+			"[url=https://github.com/Alexofp/BDCC/pull/73]#4[/url]",
+			"[url=https://github.com/Alexofp/BDCC/pull/74]#5[/url]",
+			"[url=https://github.com/Alexofp/BDCC/pull/75]#6[/url]",
+			"[url=https://github.com/Alexofp/BDCC/pull/76]#7[/url]",
+			"[url=https://github.com/Alexofp/BDCC/pull/77]#8[/url]",
+		},
+		["CanInBad"] = new List<string>
+		{
+			"[url=https://github.com/Alexofp/BDCC/pull/39]#1[/url]",
+			"[url=https://github.com/Alexofp/BDCC/pull/79]#2[/url]",
+			"[url=https://github.com/Alexofp/BDCC/pull/106]#3[/url]",
+			"[url=https://github.com/Alexofp/BDCC/pull/107]#4[/url]",
+			"[url=https://github.com/Alexofp/BDCC/pull/111]#5[/url]",
+			"helping me with the mods browser",
+		},
+		["Ranchar"] = new List<string>
+		{
+			"[url=https://github.com/Alexofp/BDCC/pull/42]#1[/url]",
+		},
+		["AverageAce"] = new List<string>
+		{
+			"lots of skins",
+			"better room descriptions",
+			"sprite improvements",
+		},
+		["Dalt"] = new List<string>
+		{
+			"[url=https://github.com/Alexofp/BDCC/pull/43]#1[/url]",
+			"[url=https://github.com/Alexofp/BDCC/pull/56]#2[/url]",
+		},
+		["Disillusioned-Gazer"] = new List<string>
+		{
+			"[url=https://github.com/Alexofp/BDCC/pull/89]#1[/url]",
+		},
+		["Sayonix"] = new List<string>
+		{
+			"lots of reported typos",
+		},
+		["Johnvic76"] = new List<string>
+		{
+			"lots of reported typos",
+		},
+		["PosionFox"] = new List<string>
+		{
+			"[url=https://github.com/Alexofp/BDCC/pull/104]#1[/url]",
+			"[url=https://github.com/Alexofp/BDCC/pull/136]#2[/url]",
+			"[url=https://github.com/Alexofp/BDCC/pull/137]#3[/url]",
+			"[url=https://github.com/Alexofp/BDCC/pull/209]#4[/url]",
+		},
+		["CKRainbow"] = new List<string>
+		{
+			"[url=https://github.com/Alexofp/BDCC/pull/112]#1[/url]",
+			"[url=https://github.com/Alexofp/BDCC/pull/119]#2[/url]",
+			"[url=https://github.com/Alexofp/BDCC/pull/157]#3[/url]",
+			"[url=https://github.com/Alexofp/BDCC/pull/184]#4[/url]",
+			"[url=https://github.com/Alexofp/BDCC/pull/186]#5[/url]",
+			"[url=https://github.com/Alexofp/BDCC/pull/189]#6[/url]",
+			"[url=https://github.com/Alexofp/BDCC/pull/197]#7[/url]",
+		},
+		["Friskygote"] = new List<string>
+		{
+			"[url=https://github.com/Alexofp/BDCC/pull/120]#1[/url]",
+			"[url=https://github.com/Alexofp/BDCC/pull/128]#2[/url]",
+			"[url=https://github.com/Alexofp/BDCC/pull/129]#3[/url]",
+			"[url=https://github.com/Alexofp/BDCC/pull/139]#4[/url]",
+			"[url=https://github.com/Alexofp/BDCC/pull/151]#5[/url]",
+			"[url=https://github.com/Alexofp/BDCC/pull/160]#6[/url]",
+		},
+		["ScottVictorHalley"] = new List<string>
+		{
+			"[url=https://github.com/Alexofp/BDCC/pull/121]#1[/url]",
+		},
+		["whalekys"] = new List<string>
+		{
+			"[url=https://github.com/Alexofp/BDCC/pull/123]#1[/url]",
+		},
+		["klorpa"] = new List<string>
+		{
+			"[url=https://github.com/Alexofp/BDCC/pull/125]#1[/url]",
+		},
+		["MrUnicellular"] = new List<string>
+		{
+			"[url=https://github.com/Alexofp/BDCC/pull/133]#1[/url]"
+		},
+		["Merith-TK"] = new List<string>
+		{
+			"[url=https://github.com/Alexofp/BDCC/pull/142]#1[/url]",
+		},
+		["keerifox"] = new List<string>
+		{
+			"[url=https://github.com/Alexofp/BDCC/pull/145]#1[/url]",
+			"[url=https://github.com/Alexofp/BDCC/pull/144]#2[/url]",
+			"[url=https://github.com/Alexofp/BDCC/pull/146]#3[/url]",
+			"[url=https://github.com/Alexofp/BDCC/pull/147]#4[/url]",
+			"[url=https://github.com/Alexofp/BDCC/pull/148]#5[/url]",
+			"[url=https://github.com/Alexofp/BDCC/pull/152]#6[/url]",
+			"[url=https://github.com/Alexofp/BDCC/pull/177]#7[/url]",
+			"[url=https://github.com/Alexofp/BDCC/pull/181]#8[/url]",
+			"[url=https://github.com/Alexofp/BDCC/pull/187]#9[/url]",
+			"[url=https://github.com/Alexofp/BDCC/pull/192]#10[/url]",
+		},
+		["CheeseyCake92"] = new List<string>
+		{
+			"[url=https://github.com/Alexofp/BDCC/pull/158]#1[/url]",
+		},
+		["[color=#E88EFF]Fox[color=#CC27DB]2[/color]Code[/color]"] = new List<string>
+		{
+			"code",
+			"[url=https://github.com/Alexofp/BDCC/pull/215]#1[/url]",
+			"[url=https://github.com/Alexofp/BDCC/pull/216]#2[/url]",
+		},
+		["moon-halo-xviii"] = new List<string>
+		{
+			"[url=https://github.com/Alexofp/BDCC/pull/196]#1[/url]",
+			"[url=https://github.com/Alexofp/BDCC/pull/207]#2[/url]",
+		},
+		["MarsDDDDD"] = new List<string>
+		{
+			"[url=https://github.com/Alexofp/BDCC/pull/211]#1[/url]",
+		},
+	};
+	
+	// No touchie! \\
+	// public Dictionary<string, PackedScene> scenes = new();
+	
+	
+	// Functions
+	public static void RegisterSceneFolder(string folder)
+	{
+		Directory dir = new Directory();
+		
+		if ( dir.Open(folder) != Error.Ok )
+		{
+			Logger.LogPrefix("Global Registry", "dir.Open(folder) != Error.Ok");
+		}
+	}
+
+// func registerSceneFolder(folder: String):
+// 	var dir = Directory.new()
+// 	if dir.open(folder) == OK:
+// 		dir.list_dir_begin()
+// 		var file_name = dir.get_next()
+// 		while file_name != "":
+// 			if dir.current_is_dir():
+// 				pass
+// 				#print("Found directory: " + file_name)
+// 			else:
+// 				if(file_name.get_extension() == "gd"):
+// 					var full_path = folder.plus_file(file_name)
+// 					#print("Registered scene: " + full_path)
+// 					registerScene(full_path)
+// 			file_name = dir.get_next()
+// 	else:
+// 		Log.printerr("An error occurred when trying to access the path "+folder)
+}
+
+/*
+
+var temporaryScenes: Dictionary = {}
+var sceneCreators: Dictionary = {}
+var bodyparts: Dictionary = {}
+var characterClasses: Dictionary = {}
+var attacks: Dictionary = {}
+var playerAttacksIDS: Array = []
+var statusEffects: Dictionary = {}
+var statusEffectsRefs: Dictionary = {}
+var statusEffectsCheckedForPC: Array = []
+var statusEffectsCheckedForNPC: Array = []
+var allSpecies: Dictionary = {}
+var items: Dictionary = {}
+var itemsRefs: Dictionary = {}
+var itemsByTag: Dictionary = {}
+var buffs: Dictionary = {}
+var events: Dictionary = {}
+var modules: Dictionary = {}
+var quests: Dictionary = {}
+var stats: Dictionary = {}
+var skills: Dictionary = {}
+var perks: Dictionary = {}
+var perksBySkillGroups: Dictionary = {}
+var perksObjects: Dictionary = {}
+var lustTopics: Dictionary = {}
+var lustTopicsObjects: Array = []
+var stageScenes: Dictionary = {}
+var stageScenesCachedStates: Dictionary = {}
+var lustActions: Dictionary = {}
+var defaultLustActions: Array = []
+var orgasmLustActions: Array = []
+var lootTables: Dictionary = {}
+var lootTablesClasses: Dictionary = {}
+var lootLists: Dictionary = {}
+var lootListsAll: Array = []
+var lootListsByCharacter: Dictionary = {}
+var lootListsByBattle: Dictionary = {}
+var fightClubFightersByRank: Dictionary = {}
+var fightClubFighters: Dictionary = {}
+var mapFloors: Dictionary = {}
+var imagePacks: Dictionary = {}
+var worldEdits: Dictionary = {}
+var regularWorldEdits: Array = []
+var sexActivities: Dictionary = {}
+var sexActivitiesReferences: Dictionary = {}
+var fetishes: Dictionary = {}
+var sexGoals: Dictionary = {}
+var sexTypes: Dictionary = {}
+var sexReactionHandlersByID: Dictionary = {}
+var gameExtenders: Dictionary = {}
+var computers: Dictionary = {}
+var fluids: Dictionary = {}
+var skins: Dictionary = {}
+var partSkins: Dictionary = {}
+var speechModifiers: Array = []
+var slaveBreakTasks: Dictionary = {}
+var slaveBreakTaskRefs: Dictionary = {}
+var slaveTypes: Dictionary = {}
+var slaveActions: Dictionary = {}
+var slaveEvents: Dictionary = {}
+var slaveActivities: Dictionary = {}
+var datapacks: Dictionary = {}
+var interactions: Dictionary = {}
+var interactionRefs: Dictionary = {}
+var globalTasks: Dictionary = {}
+var repStats:Dictionary = {}
+var auctionTraits:Dictionary = {}
+var auctionTraitsRefs:Dictionary = {}
+var auctionActions:Dictionary = {}
+var pawnTypes:Dictionary = {}
+var transformations:Dictionary = {}
+var transformationRefs:Dictionary = {}
+var transformationEffects:Dictionary = {}
+var nurseryTasks:Dictionary = {}
+var drugDenEvents:Dictionary = {}
+var drugDenEventRefs:Dictionary = {}
+var playerSlaveryDefs:Dictionary = {}
+var specialRelationships:Dictionary = {}
+var specialRelationshipRefs:Dictionary = {}
+
+var bodypartStorageNode
+
+var sceneCache: Dictionary = {}
+var codeblocksCache: Dictionary = {}
+var interactionGoalCache: Dictionary = {}
+var interactionGoalRefCache: Dictionary = {}
+
+var cachedDonationData = null
+var cachedLocalDonationData = null
+var donationDataRequest: HTTPRequest
+signal donationDataUpdated
+
+signal loadingUpdate(percent, whatsnext)
+signal loadingFinished
+
+var modsSupport = false
+var loadedMods = []
+
+var isInitialized = false
+
+func hasModSupport():
+	return modsSupport
+
+func getLoadedMods():
+	return loadedMods
+	
+func getModsFolder() -> String:
+	var modsFolder = "user://mods"
+	if(OS.get_name() == "Android"):
+		#var permissions: Array = OS.get_granted_permissions() #for Godot 3 branch
+		#if permissions.has("android.permission.READ_EXTERNAL_STORAGE"):
+		var externalDir:String = OS.get_system_dir(OS.SYSTEM_DIR_DOCUMENTS)
+		var finalDir = externalDir.plus_file("BDCCMods")
+		modsFolder = finalDir
+		var _ok = DirAccess.new().make_dir(modsFolder)
+	return modsFolder
+	
+func getDatapacksFolder() -> String:
+	var modsFolder = "user://datapacks"
+	if(OS.get_name() == "Android"):
+		#var permissions: Array = OS.get_granted_permissions() #for Godot 3 branch
+		#if permissions.has("android.permission.READ_EXTERNAL_STORAGE"):
+		var externalDir:String = OS.get_system_dir(OS.SYSTEM_DIR_DOCUMENTS)
+		var finalDir = externalDir.plus_file("BDCCMods/Datapacks")
+		modsFolder = finalDir
+		var _ok = DirAccess.new().make_dir(modsFolder)
+	return modsFolder
+	
+func getRawModList():
+	var result = []
+	
+	var modsFolder = getModsFolder()
+	
+	var dir = DirAccess.new()
+	if dir.open(modsFolder) == OK:
+		dir.list_dir_begin()
+		var file_name = dir.get_next()
+		while file_name != "":
+			if dir.current_is_dir():
+				pass
+			else:
+				if(file_name.get_extension() in ["pck", "zip"]):
+					var full_path = modsFolder.plus_file(file_name)
+					#print("Registered mod: " + full_path)
+					#var _ok = ProjectSettings.load_resource_pack(full_path)
+					#if(_ok):
+					result.append(full_path)
+			file_name = dir.get_next()
+	else:
+		Log.printerr("An error occurred when trying to access the path "+modsFolder)
+	return result
+
+func checkModSupport():
+	# If we're in editor we have to do this silly thing
+	# read more here: https://github.com/godotengine/godot/issues/19815
+	if(OS.has_feature("editor")):
+		var _haveBase = ProjectSettings.load_resource_pack("res://BDCC.pck")
+		if(!_haveBase):
+			modsSupport = false
+			return
+	else:
+		modsSupport = true
+
+func loadModOrder(theModOrder):
+	for modEntry in theModOrder:
+		if(modEntry["disabled"]):
+			continue
+		
+		var _ok = ProjectSettings.load_resource_pack(modEntry["path"])
+		if(_ok):
+			loadedMods.append(modEntry["name"])
+
+func loadMods():
+	var modsFolder = "user://mods"
+	if(OS.get_name() == "Android"):
+		#var permissions: Array = OS.get_granted_permissions() #for Godot 3 branch
+		#if permissions.has("android.permission.READ_EXTERNAL_STORAGE"):
+		var externalDir:String = OS.get_system_dir(OS.SYSTEM_DIR_DOCUMENTS)
+		var finalDir = externalDir.plus_file("BDCCMods")
+		modsFolder = finalDir
+		var _ok = DirAccess.new().make_dir(modsFolder)
+	
+	var dir = DirAccess.new()
+	if dir.open(modsFolder) == OK:
+		dir.list_dir_begin()
+		var file_name = dir.get_next()
+		while file_name != "":
+			if dir.current_is_dir():
+				pass
+			else:
+				if(file_name.get_extension() in ["pck", "zip"]):
+					var full_path = modsFolder.plus_file(file_name)
+					#print("Registered mod: " + full_path)
+					var _ok = ProjectSettings.load_resource_pack(full_path)
+					if(_ok):
+						loadedMods.append(file_name)
+			file_name = dir.get_next()
+	else:
+		Log.printerr("An error occurred when trying to access the path "+modsFolder)
+
+const CACHE_SCENE = "scene"
+const CACHE_CHAR = "char"
+const CACHE_STAGESCENE = "stagescene"
+
+func fillBaseCacheFields():
+	var theFields:Array = [CACHE_SCENE, CACHE_CHAR, CACHE_STAGESCENE]
+	
+	for field in theFields:
+		if(!pathToIDCache.has(field)):
+			pathToIDCache[field] = {}
+		if(!IDToPathCache.has(field)):
+			IDToPathCache[field] = {}
+
+var cacheEnabled:bool = false
+var cacheEnabledForEditor:bool = true
+func checkCacheEnabled():
+	if(OS.get_name() == "HTML5"): # To save on userstorage
+		cacheEnabled = false
+	
+	if(Util.hasCommandLineArgument("-noRegistryCache")):
+		cacheEnabled = false
+	if(Util.hasCommandLineArgument("-enableRegistryCache") || (cacheEnabledForEditor && OS.has_feature("editor"))):
+		cacheEnabled = true
+
+func isCacheEnabled() -> bool:
+	return cacheEnabled
+
+func getCachedID(theType:String, thePath:String) -> String:
+	if(!pathToIDCache[theType].has(thePath)):
+		return ""
+	return pathToIDCache[theType][thePath]
+
+func getCachedPath(theType:String, theID:String) -> String:
+	if(!IDToPathCache[theType].has(theID)):
+		return ""
+	return IDToPathCache[theType][theID]
+
+func addCacheEntry(theType:String, theID:String, thePath:String):
+	if(!isCacheEnabled()):
+		return
+	IDToPathCache[theType][theID] = thePath
+	pathToIDCache[theType][thePath] = theID
+
+func removeCacheEntryByID(theType:String, theID:String, updateFile:bool=true):
+	if(!hasCachedID(theType, theID)):
+		return
+	pathToIDCache[theType].erase(getCachedPath(theType, theID))
+	IDToPathCache[theType].erase(theID)
+	
+	if(updateFile):
+		saveRegistryCacheToFile()
+
+func hasCachedPath(theType:String, thePath:String) -> bool:
+	if(!pathToIDCache[theType].has(thePath)):
+		return false
+	return true
+	
+func hasCachedID(theType:String, theID:String) -> bool:
+	if(!IDToPathCache[theType].has(theID)):
+		return false
+	return true
+
+func loadCached(theType:String, theID:String):
+	return load(getCachedPath(theType, theID))
+
+func newCached(theType:String, theID:String):
+	return loadCached(theType, theID).new()
+
+
+func _init():
+	gles2Mode = (OS.get_current_video_driver() == OS.VIDEO_DRIVER_GLES2)
+	
+	checkModSupport()
+	#loadMods()
+	
+	bodypartStorageNode = Node.new()
+	add_child(bodypartStorageNode)
+	bodypartStorageNode.name = "Bodyparts"	
+	
+func startLoadingDonationData():
+	var file = File.new()
+	if(file.file_exists("res://DonationInfo.json")):
+		file.open("res://DonationInfo.json", File.READ)
+		var content = file.get_as_text()
+		file.close()
+		
+		var jsonResult = JSON.parse(content)
+		if(jsonResult.error == OK):
+			cachedLocalDonationData = jsonResult.result
+	
+	donationDataRequest = HTTPRequest.new()
+	add_child(donationDataRequest)
+	var _ok = donationDataRequest.connect("request_completed", self, "onDonationDataRequest")
+	var _ok2 = donationDataRequest.request("https://raw.githubusercontent.com/Alexofp/BDCC/main/DonationInfo.json")
+
+func validateDonationData(donationData):
+	if(!(donationData is Dictionary)):
+		return false
+	if(!donationData.has("dateString") || !donationData.has("unixTime") || !donationData.has("entries") || !(donationData["entries"] is Dictionary) || !donationData.has("tiers") || !(donationData["tiers"] is Array)):
+		return false
+	for tierName in donationData["entries"]:
+		var tier = donationData["entries"][tierName]
+		if(!(tier is Array)):
+			return false
+		for entry in tier:
+			var requiredFields = ["nickname"]
+			for req in requiredFields:
+				if(!entry.has(req)):
+					return false
+	return true
+
+func onDonationDataRequest(result, _response_code, _headers, body):
+	if result != HTTPRequest.RESULT_SUCCESS:
+		Log.printerr("[onDonationDataRequest] Couldn't get data from github")
+		return
+	
+	var jsonResult = JSON.parse(body.get_string_from_utf8())
+	if(jsonResult.error != OK):
+		Log.printerr("[onDonationDataRequest] Couldn't parse json data from github.")
+		return
+	
+	var donationData = jsonResult.result
+
+	if(!validateDonationData(donationData)):
+		Log.printerr("[onDonationDataRequest] Bad data from github")
+		return
+	
+	cachedDonationData = donationData
+	emit_signal("donationDataUpdated")
+
+func getDonationDataString():
+	var theData
+	if(cachedDonationData == null):
+		theData = cachedLocalDonationData
+	else:
+		if(cachedDonationData["unixTime"] >= cachedLocalDonationData["unixTime"]):
+			theData = cachedDonationData
+		else:
+			theData = cachedLocalDonationData
+	
+	if(theData == null || !validateDonationData(theData)):
+		return ""
+	
+	var newText = "[center][b][url=https://subscribestar.adult/rahi]SubscribeStar[/url][/b]\nCompiled "+str(theData["dateString"])+"\n\n"
+	
+	for tierName in theData["tiers"]:
+		if(!theData["entries"].has(tierName)):
+			continue
+		newText += "[b]"+tierName+" tier[/b]\n"
+		for entry in theData["entries"][tierName]:
+			newText += entry["nickname"]+"\n"
+		newText += "\n"
+	newText += "Thank you [color=red]<3[/color][/center]"
+	return newText
+
+const totalStages = 19.0
+
+func registerEverything():
+	createLoadLockFile()
+	var start = OS.get_ticks_usec()
+	loadRegistryCacheFromFile()
+	
+	startLoadingDonationData()
+	
+	emit_signal("loadingUpdate", 0.0/totalStages, "Modules pre-init")
+	yield(get_tree(), "idle_frame")
+	yield(get_tree(), "idle_frame")
+	preinitModulesHooks("res://Modules/")
+	yield(preinitModulesFolder("res://Modules/"), "completed") # 1.0 & 2.0
+	
+	ModularDialogue.registerEverything()
+	
+	emit_signal("loadingUpdate", 3.0/totalStages, "Bodyparts")
+	yield(get_tree(), "idle_frame")
+	yield(get_tree(), "idle_frame")
+	
+	if(true):
+		var start2 = OS.get_ticks_usec()
+		registerBodypartFolder("res://Player/Bodyparts/Legs/")
+		registerBodypartFolder("res://Player/Bodyparts/Breasts/")
+		registerBodypartFolder("res://Player/Bodyparts/Hair/")
+		registerBodypartFolder("res://Player/Bodyparts/Tail/")
+		registerBodypartFolder("res://Player/Bodyparts/Body/")
+		registerBodypartFolder("res://Player/Bodyparts/Head/")
+		registerBodypartFolder("res://Player/Bodyparts/Arms/")
+		registerBodypartFolder("res://Player/Bodyparts/Ears/")
+		registerBodypartFolder("res://Player/Bodyparts/Horns/")
+		registerBodypartFolder("res://Player/Bodyparts/Penis/")
+		registerBodypartFolder("res://Player/Bodyparts/Anus/")
+		registerBodypartFolder("res://Player/Bodyparts/Vagina/")
+		var end2 = OS.get_ticks_usec()
+		var worker_time2 = (end2-start2)/1000000.0
+		Log.print("BODYPARTS initialized in: %s seconds" % [worker_time2])
+	
+	emit_signal("loadingUpdate", 4.0/totalStages, "Inventory")
+	yield(get_tree(), "idle_frame")
+	yield(get_tree(), "idle_frame")
+	
+	registerItemFolder("res://Inventory/Items/")
+	registerItemFolder("res://Inventory/Items/Underwear/")
+	registerItemFolder("res://Inventory/Items/BDSM/")
+	registerItemFolder("res://Inventory/Items/StaticBDSM/")
+	registerItemFolder("res://Inventory/Items/Weapons/")
+	registerItemFolder("res://Inventory/Items/Clothes/")
+	registerItemFolder("res://Inventory/Items/Unique/")
+	
+	registerBuffFolder("res://Inventory/Buffs/")
+	
+	registerLootTableFolder("res://Inventory/LootTable/")
+	registerLootListFolder("res://Inventory/LootLists/")
+	
+	emit_signal("loadingUpdate", 5.0/totalStages, "Skills")
+	yield(get_tree(), "idle_frame")
+	yield(get_tree(), "idle_frame")
+	
+	registerRepStatFolder("res://Game/Reputation/RepStats/")
+	
+	registerStat("res://Skills/Stat/AgilityStat.gd")
+	registerStat("res://Skills/Stat/StrengthStat.gd")
+	registerStat("res://Skills/Stat/VitalityStat.gd")
+	registerStat("res://Skills/Stat/SexinessStat.gd")
+	
+	registerSkillFolder("res://Skills/Skill/")
+	
+	registerPerkFolder("res://Skills/Perk/")
+	
+	emit_signal("loadingUpdate", 6.0/totalStages, "Events")
+	yield(get_tree(), "idle_frame")
+	yield(get_tree(), "idle_frame")
+	
+	registerEventFolder("res://Events/Event/")
+	registerEventFolder("res://Game/NpcSlavery/SlaveActivitiesEvents/")
+	registerDrugDenEventFolder("res://Game/DrugDen/Events/")
+	
+	emit_signal("loadingUpdate", 7.0/totalStages, "Scenes")
+	yield(get_tree(), "idle_frame")
+	yield(get_tree(), "idle_frame")
+	
+	if(true):
+		var start2 = OS.get_ticks_usec()
+		registerSceneFolder("res://Scenes/")
+		registerSceneFolder("res://Scenes/Intro/")
+		registerSceneFolder("res://Scenes/Item/")
+		registerSceneFolder("res://Scenes/Cellblock/")
+		registerSceneFolder("res://Scenes/Mineshaft/")
+		registerSceneFolder("res://Game/NpcSlavery/SlaveActionScenes/")
+		registerSceneFolder("res://Game/NpcSlavery/SlaveActionScenes/Prostitution/")
+		
+		var end2 = OS.get_ticks_usec()
+		var worker_time2 = (end2-start2)/1000000.0
+		Log.print("SCENES initialized in: %s seconds" % [worker_time2])
+	
+	registerFluidsFolder("res://Player/Fluids/Fluids/")
+	
+	emit_signal("loadingUpdate", 8.0/totalStages, "Characters")
+	yield(get_tree(), "idle_frame")
+	yield(get_tree(), "idle_frame")
+	
+	registerCharacterFolder("res://Characters/")
+	registerCharacterFolder("res://Characters/Generic/")
+	
+	emit_signal("loadingUpdate", 9.0/totalStages, "Attacks")
+	yield(get_tree(), "idle_frame")
+	yield(get_tree(), "idle_frame")
+	
+	registerAttackFolder("res://Attacks/", true)
+	
+	registerLustActionFolder("res://Game/LustCombat/LustActions/")
+	registerLustActionFolder("res://Game/LustCombat/LustActions/Perk/")
+	
+	registerLustTopicFolder("res://Game/LustCombat/Topic/")
+	
+	registerAuctionTraitFolder("res://Game/SlaveAuction/Traits/")
+	registerAuctionActionFolder("res://Game/SlaveAuction/Actions/")
+	
+	emit_signal("loadingUpdate", 10.0/totalStages, "Sex")
+	yield(get_tree(), "idle_frame")
+	yield(get_tree(), "idle_frame")
+	
+	registerSexActivitiesFolder("res://Game/SexEngine/SexActivity/")
+	registerFetishesFolder("res://Game/SexEngine/Fetish/")
+	registerSexGoalsFolder("res://Game/SexEngine/Goal/")
+	registerSexTypeFolder("res://Game/SexEngine/SexType/")
+	registerSexReactionHandlerFolder("res://Game/SexEngine/Reactions/")
+	
+	registerStatusEffectFolder("res://StatusEffect/")
+	
+	registerSpeciesFolder("res://Species/")
+	
+	registerQuestFolder("res://Quests/Quest/")
+	
+	registerSpeechModifiersFolder("res://Game/SpeechModifiers/")
+	registerSlaveBreakTaskFolder("res://Game/NpcSlavery/BreakTask/")
+	registerSlaveTypeFolder("res://Game/NpcSlavery/SlaveType/")
+	registerSlaveActionFolder("res://Game/NpcSlavery/SlaveActions/")
+	registerSlaveEventFolder("res://Game/NpcSlavery/SlaveEvents/")
+	registerSlaveActivitiesFolder("res://Game/NpcSlavery/SlaveActivities/")
+	
+	registerPlayerSlaveryDefFolder("res://Game/PlayerSlavery/ScenarioDefs/")
+	registerSpecialRelantionshipFolder("res://Game/InteractionSystem/Relationship/SpecialRelationships/")
+	
+	registerInteractionFolder("res://Game/InteractionSystem/Interactions/")
+	registerGlobalTaskFolder("res://Game/InteractionSystem/GlobalTasks/")
+	registerPawnTypesFolder("res://Game/InteractionSystem/PawnTypes/")
+	
+	registerTransformationsFolder("res://Game/Transformation/TFs/")
+	registerTransformationEffectsFolder("res://Game/Transformation/Effects/")
+	registerNurseryTaskFolder("res://Game/Science/NurseryTasks/")
+	
+	emit_signal("loadingUpdate", 11.0/totalStages, "Sex scenes")
+	yield(get_tree(), "idle_frame")
+	yield(get_tree(), "idle_frame")
+	
+	if(true):
+		var start2 = OS.get_ticks_usec()
+		registerStageSceneFolder("res://Player/StageScene3D/Scenes2/")
+		registerStageSceneFolder("res://Player/StageScene3D/Scenes/")
+		var end2 = OS.get_ticks_usec()
+		var worker_time2 = (end2-start2)/1000000.0
+		Log.print("STAGE SCENES initialized in: %s seconds" % [worker_time2])
+		
+	registerMapFloorFolder("res://Game/World/Floors/")
+	
+	emit_signal("loadingUpdate", 12.0/totalStages, "Image packs")
+	yield(get_tree(), "idle_frame")
+	yield(get_tree(), "idle_frame")
+	
+	registerImagePackFolder("res://Images/ImagePacks/")
+	OPTIONS.checkImagePackOrder(imagePacks)
+	
+	registerGameExtenderFolder("res://Game/GameExtenders/Extenders/")
+	
+	registerComputerFolder("res://Game/Computer/")
+	
+	emit_signal("loadingUpdate", 13.0/totalStages, "Skins")
+	yield(get_tree(), "idle_frame")
+	yield(get_tree(), "idle_frame")
+	
+	registerSkinsFolder("res://Player/Player3D/Skins/")
+	registerSkinsFolder("res://Player/Player3D/SkinsByAuthor/AverageAce/", "AverageAce")
+	registerPartSkinsFolder("res://Player/Player3D/SkinsParts/")
+	registerPartSkinsFolder("res://Player/Player3D/SkinsPartsByAuthor/AverageAce/", "AverageAce")
+	
+	emit_signal("loadingUpdate", 14.0/totalStages, "Modules")
+	yield(get_tree(), "idle_frame")
+	yield(get_tree(), "idle_frame")
+	
+	yield(registerModules(), "completed") # 15.0 & 16.0
+	
+	findCustomSkins()
+	sortFightClubFighters()
+	sortRegisteredStatusEffectsByPriority()
+	sortPlayerAttacks()
+	sortSpeechModifiersByPriority()
+	
+	GM.GES.registerAll()
+	
+	emit_signal("loadingUpdate", 17.0/totalStages, "Datapacks")
+	yield(get_tree(), "idle_frame")
+	yield(get_tree(), "idle_frame")
+	loadDatapacksFromFolder(getDatapacksFolder())
+	loadDatapacksFromFolder("res://StaticDatapacks")
+	
+	emit_signal("loadingUpdate", 18.0/totalStages, "Modules late initialization")
+	yield(get_tree(), "idle_frame")
+	yield(get_tree(), "idle_frame")
+	postInitModules()
+	
+	saveRegistryCacheToFile()
+	
+	var end = OS.get_ticks_usec()
+	var worker_time = (end-start)/1000000.0
+	Log.print("GlobalRegistry fully initialized in: %s seconds" % [worker_time])
+	isInitialized = true
+	deleteLoadLockFile()
+	emit_signal("loadingFinished")
+	
+# The point is that it will still generate unique ids even after saving/loading
+func generateUniqueID():
+	currentUniqueID += 1
+	return currentUniqueID - 1
+
+func generateChildUniqueID():
+	currentChildUniqueID += 1
+	return currentChildUniqueID - 1
+
+func generateNPCUniqueID():
+	currentNPCUniqueID += 1
+	return currentNPCUniqueID - 1
+
+func generateTFID():
+	currentTFID += 1
+	return currentTFID - 1
+
+func getGameVersionString():
+	return str(game_version_major)+"."+str(game_version_minor)+"."+str(game_version_revision)+str(game_version_suffix)
+
+func getGameVersionStringNoSuffix():
+	return str(game_version_major)+"."+str(game_version_minor)+"."+str(game_version_revision)
+
+func isVersionCompatible(otherversion:String):
+	otherversion = otherversion.strip_edges()
+	
+	if(otherversion == "*"):
+		return true
+	if(otherversion == getGameVersionStringNoSuffix()):
+		return true
+	if(otherversion == getGameVersionString()):
+		return true
+	return false
+
+func isVersionListHasCompatible(versionlist):
+	if(!(versionlist is String)):
+		return false
+	
+	var splitted = versionlist.split(",", false)
+	for theversion in splitted:
+		if(isVersionCompatible(theversion)):
+			return true
+	return false
+
+func registerScene(path: String, creator = null):
+	if(hasCachedPath(CACHE_SCENE, path)):
+		scenes[getCachedID(CACHE_SCENE, path)] = null
+		return
+	
+	var scene = load(path)
+	if(!scene):
+		Log.printerr("ERROR: couldn't load scene from path "+path)
+		return
+	var sceneObject = scene.new()
+	scenes[sceneObject.sceneID] = scene
+	addCacheEntry(CACHE_SCENE, sceneObject.sceneID, path)
+	sceneObject.queue_free()
+	if(creator != null):
+		sceneCreators[sceneObject.sceneID] = creator
+
+func registerTemporaryScene(sceneScript:Script):
+	var sceneObject = sceneScript.new()
+	
+	if(!(sceneObject is SceneBase)):
+		return null
+	
+	var theID = sceneObject.sceneID
+	temporaryScenes[theID] = sceneScript
+	sceneObject.queue_free()
+	return theID
+
+func clearTemporaryScenes():
+	#for sceneID in temporaryScenes.keys():
+	#	temporaryScenes[sceneID].queue_free()
+	temporaryScenes.clear()
+
+func getSceneCreator(id: String):
+	if(!sceneCreators.has(id)):
+		return null
+	return sceneCreators[id]
+
+func createScene(id: String):
+	if(":" in id):
+		var splitData = Util.splitOnFirst(id, ":")
+		var datapackID = splitData[0]
+		var sceneID = splitData[1]
+		
+		if(GM.main != null && is_instance_valid(GM.main) && GM.main.loadedDatapacks.has(datapackID)):
+			var newscene = DatapackSceneBase.new()
+			newscene.name = id
+			newscene.sceneID = id
+			newscene.setDatapackAndSceneIDs(datapackID, sceneID)
+			return newscene
+	
+	if(!scenes.has(id) && !temporaryScenes.has(id) && !hasCachedID(CACHE_SCENE, id)):
+		Log.printerr("ERROR: scene with the id "+id+" wasn't found")
+		return null
+	var scene
+	if(temporaryScenes.has(id)):
+		scene = temporaryScenes[id].new()
+	else:
+		if(scenes[id] == null && hasCachedID(CACHE_SCENE, id)):
+			scenes[id] = loadCached(CACHE_SCENE, id)
+			if(scenes[id] == null): # We have a cache entry but the scene doesn't actually exist
+				removeCacheEntryByID(CACHE_SCENE, id)
+				Log.printerr("ERROR: scene with the id "+id+" wasn't found (cache error)")
+				return null
+		scene = scenes[id].new()
+	scene.name = scene.sceneID
+	return scene
+
+func registerSceneFolder(folder: String):
+	var dir = DirAccess.new()
+	if dir.open(folder) == OK:
+		dir.list_dir_begin()
+		var file_name = dir.get_next()
+		while file_name != "":
+			if dir.current_is_dir():
+				pass
+				#print("Found directory: " + file_name)
+			else:
+				if(file_name.get_extension() == "gd"):
+					var full_path = folder.plus_file(file_name)
+					#print("Registered scene: " + full_path)
+					registerScene(full_path)
+			file_name = dir.get_next()
+	else:
+		Log.printerr("An error occurred when trying to access the path "+folder)
+
+func registerBodypart(path: String):
+	var bodypart = load(path)
+	var bodypartObject = bodypart.new()
+	bodyparts[bodypartObject.id] = bodypartObject
+	bodypartStorageNode.add_child(bodypartObject)
+
+func createBodypart(id: String):
+	if(!bodyparts.has(id)):
+		Log.printerr("ERROR: bodypart with the id "+id+" wasn't found")
+		return null
+	return bodyparts[id].duplicate()
+
+func getBodypartRef(id: String):
+	if(!bodyparts.has(id)):
+		Log.printerr("ERROR: bodypart with the id "+id+" wasn't found")
+		return null
+	return bodyparts[id]
+
+func getBodypartRefs():
+	return bodyparts
+
+func getBodypartsIdsBySlot(_slot):
+	var result = []
+	for bodypartID in bodyparts:
+		var bodypart = bodyparts[bodypartID]
+		if(bodypart.getSlot() == _slot):
+			result.append(bodypartID)
+	return result
+
+func registerBodypartFolder(folder: String):
+	var dir = DirAccess.new()
+	if dir.open(folder) == OK:
+		dir.list_dir_begin()
+		var file_name = dir.get_next()
+		while file_name != "":
+			if dir.current_is_dir():
+				pass
+				#print("Found directory: " + file_name)
+			else:
+				if(file_name.get_extension() == "gd"):
+					var full_path = folder.plus_file(file_name)
+					#print("Registered bodypart: " + full_path)
+					registerBodypart(full_path)
+			file_name = dir.get_next()
+	else:
+		Log.printerr("An error occurred when trying to access the path "+folder)
+
+func registerCharacter(path: String):
+	if(hasCachedPath(CACHE_CHAR, path)):
+		characterClasses[getCachedID(CACHE_CHAR, path)] = null
+		return
+	
+	var character = load(path)
+	var characterObject = character.new()
+	characterClasses[characterObject.id] = character
+	addCacheEntry(CACHE_CHAR, characterObject.id, path)
+	characterObject.queue_free()
+
+func registerCharacterFolder(folder: String):
+	var dir = DirAccess.new()
+	if dir.open(folder) == OK:
+		dir.list_dir_begin()
+		var file_name = dir.get_next()
+		while file_name != "":
+			if dir.current_is_dir():
+				pass
+				#print("Found directory: " + file_name)
+			else:
+				if(file_name.get_extension() == "gd"):
+					var full_path = folder.plus_file(file_name)
+					#print("Registered character: " + full_path)
+					registerCharacter(full_path)
+			file_name = dir.get_next()
+	else:
+		Log.printerr("An error occurred when trying to access the path "+folder)
+
+func characterExists(id:String):
+	if(id == "pc"):
+		return GM.pc != null
+	
+	if(GM.main != null):
+		var mainCharacter = GM.main.getCharacter(id)
+		if(mainCharacter != null):
+			return true
+	return false
+
+func getCharacter(id: String):
+	if(id == "pc"):
+		return GM.pc
+	
+	if(GM.main != null):
+		var mainCharacter = GM.main.getCharacter(id)
+		if(mainCharacter != null):
+			return mainCharacter
+	
+	#if(!characters.has(id)):
+	Log.printerr("ERROR: character with the id "+id+" wasn't found ")
+	return null
+	#return characters[id]
+
+func getCharacters():
+	if(GM.main != null):
+		return GM.main.getCharacters()
+	
+	return {}
+
+func getCharacterClasses():
+	return characterClasses
+
+func createCharacter(charID:String):
+	if(":" in charID):
+		var splitData = Util.splitOnFirst(charID, ":")
+		var datapackID = splitData[0]
+		var datapackCharID = splitData[1]
+		
+		var datapack = getDatapack(datapackID)
+		if(datapack == null):
+			return null
+		
+		if(!datapack.characters.has(datapackCharID)):
+			return null
+		var dynChar = DynamicCharacter.new()
+		add_child(dynChar)
+		dynChar.loadFromDatapackCharacter(datapack, datapack.characters[datapackCharID])
+		remove_child(dynChar)
+		return dynChar
+	
+	return createStaticCharacter(charID)
+
+func createStaticCharacter(charID:String):
+	if(!characterClasses.has(charID)):
+		Log.printerr("ERROR: character class with the id "+charID+" wasn't found")
+		return null
+	if(characterClasses[charID] == null && hasCachedID(CACHE_CHAR, charID)):
+		characterClasses[charID] = loadCached(CACHE_CHAR, charID)
+		if(!characterClasses[charID]):
+			Log.printerr("ERROR: character class with the id "+charID+" wasn't found (cache error)")
+			return null
+	return characterClasses[charID].new()
+
+func registerAttack(path: String):
+	var attack = load(path)
+	var attackObject = attack.new()
+	attacks[attackObject.id] = attackObject
+	if(attackObject.isPlayerAttack):
+		playerAttacksIDS.append(attackObject.id)
+	
+func registerAttackFolder(folder: String, recursive = false):
+	var dir = DirAccess.new()
+	if dir.open(folder) == OK:
+		dir.list_dir_begin(true)
+		var file_name = dir.get_next()
+		while file_name != "":
+			if dir.current_is_dir():
+				if(recursive):
+					registerAttackFolder(folder.plus_file(file_name)+"/", true)
+				pass
+				#print("Found directory: " + file_name)
+			else:
+				if(file_name.get_extension() == "gd"):
+					var full_path = folder.plus_file(file_name)
+					#print("Registered attack: " + full_path)
+					registerAttack(full_path)
+			file_name = dir.get_next()
+	else:
+		Log.printerr("An error occurred when trying to access the path "+folder)
+
+func getAttack(id: String):
+	if(!attacks.has(id)):
+		Log.printerr("ERROR: attack with the id "+id+" wasn't found")
+		return null
+	return attacks[id]
+
+func getAttacks():
+	return attacks
+
+func getPlayerAttackIDs():
+	return playerAttacksIDS
+
+func registerStatusEffect(path: String):
+	var effect = load(path)
+	var effectObject = effect.new()
+	statusEffects[effectObject.id] = effect
+	statusEffectsRefs[effectObject.id] = effectObject
+	if(effectObject.alwaysCheckedForPlayer):
+		statusEffectsCheckedForPC.append(effectObject)
+	if(effectObject.alwaysCheckedForNPCs):
+		statusEffectsCheckedForNPC.append(effectObject)
+	#effectObject.queue_free()
+
+func registerStatusEffectFolder(folder: String):
+	var dir = DirAccess.new()
+	if dir.open(folder) == OK:
+		dir.list_dir_begin()
+		var file_name = dir.get_next()
+		while file_name != "":
+			if dir.current_is_dir():
+				pass
+				#print("Found directory: " + file_name)
+			else:
+				if(file_name.get_extension() == "gd"):
+					var full_path = folder.plus_file(file_name)
+					#print("Registered status effect: " + full_path)
+					registerStatusEffect(full_path)
+			file_name = dir.get_next()
+	else:
+		Log.printerr("An error occurred when trying to access the path "+folder)
+		
+func createStatusEffect(id: String):
+	if(!statusEffects.has(id)):
+		Log.printerr("ERROR: status effect with the id "+id+" wasn't found")
+		return null
+	return statusEffects[id].new()
+
+func getStatusEffectRef(id: String):
+	if(!statusEffectsRefs.has(id)):
+		Log.printerr("ERROR: status effect with the id "+id+" wasn't found")
+		return null
+	return statusEffectsRefs[id]
+
+func getStatusEffectsRefs():
+	return statusEffectsRefs
+
+func getStatusEffectsAlwaysCheckedForPC():
+	return statusEffectsCheckedForPC
+
+func getStatusEffectsAlwaysCheckedForNPC():
+	return statusEffectsCheckedForNPC
+
+static func sortRegisteredStatusEffectsByPriority_sortFunc(a, b):
+	if a.priorityDuringChecking > b.priorityDuringChecking:
+		return true
+	return false
+
+func sortRegisteredStatusEffectsByPriority():
+	statusEffectsCheckedForPC.sort_custom(self, "sortRegisteredStatusEffectsByPriority_sortFunc")
+	statusEffectsCheckedForNPC.sort_custom(self, "sortRegisteredStatusEffectsByPriority_sortFunc")
+
+func sortPlayerAttacks_sortFunc(a, b):
+	if getAttack(a).attackPriority > getAttack(b).attackPriority:
+		return true
+	return false
+
+func sortPlayerAttacks():
+	playerAttacksIDS.sort_custom(self, "sortPlayerAttacks_sortFunc")
+
+func registerSpecies(path: String):
+	var species = load(path)
+	var speciesObject = species.new()
+	allSpecies[speciesObject.id] = speciesObject
+
+func registerSpeciesFolder(folder: String):
+	var dir = DirAccess.new()
+	if dir.open(folder) == OK:
+		dir.list_dir_begin()
+		var file_name = dir.get_next()
+		while file_name != "":
+			if dir.current_is_dir():
+				pass
+				#print("Found directory: " + file_name)
+			else:
+				if(file_name.get_extension() == "gd"):
+					var full_path = folder.plus_file(file_name)
+					#print("Registered species: " + full_path)
+					registerSpecies(full_path)
+			file_name = dir.get_next()
+	else:
+		Log.printerr("An error occurred when trying to access the path "+folder)
+		
+func getSpecies(id: String):
+	if(!allSpecies.has(id)):
+		Log.printerr("ERROR: species with the id "+id+" wasn't found")
+		return null
+	return allSpecies[id]
+
+func getAllPlayableSpecies():
+	var result = {}
+	for speciesID in allSpecies:
+		if(allSpecies[speciesID].isPlayable()):
+			result[speciesID] = allSpecies[speciesID]
+	return result
+
+func getAllSpecies():
+	return allSpecies
+
+
+func registerItem(path: String):
+	var item = load(path)
+	var itemObject = item.new()
+	items[itemObject.id] = item
+	itemsRefs[itemObject.id] = itemObject
+	for tag in itemObject.getTags():
+		if(!itemsByTag.has(tag)):
+			itemsByTag[tag] = []
+		itemsByTag[tag].append(itemObject.id)
+
+func registerItemFolder(folder: String):
+	var dir = DirAccess.new()
+	if dir.open(folder) == OK:
+		dir.list_dir_begin()
+		var file_name = dir.get_next()
+		while file_name != "":
+			if dir.current_is_dir():
+				pass
+				#print("Found directory: " + file_name)
+			else:
+				if(file_name.get_extension() == "gd"):
+					var full_path = folder.plus_file(file_name)
+					#print("Registered item: " + full_path)
+					registerItem(full_path)
+			file_name = dir.get_next()
+	else:
+		Log.printerr("An error occurred when trying to access the path "+folder)
+
+func createItem(id: String, generateID = true):
+	if(!items.has(id)):
+		Log.printerr("ERROR: item with the id "+id+" wasn't found")
+		return null
+	var newItem = items[id].new()
+	if(generateID):
+		newItem.uniqueID = "item"+str(generateUniqueID())
+	return newItem
+
+func createItemNoID(id: String):
+	return createItem(id, false)
+
+func getItemRef(id: String):
+	if(!itemsRefs.has(id)):
+		Log.printerr("ERROR: item with the id "+id+" wasn't found")
+		return null
+	return itemsRefs[id]
+
+func getItemIDsByTag(tag):
+	if(!itemsByTag.has(tag)):
+		return []
+	return itemsByTag[tag]
+
+func getItemIDsByTagSlow(tag):
+	var result = []
+	for itemID in itemsRefs:
+		if(itemsRefs[itemID].hasTag(tag)):
+			result.append(itemID)
+	return result
+
+func getItemRefs():
+	return itemsRefs
+
+func registerBuff(path: String):
+	var item = load(path)
+	var itemObject = item.new()
+	buffs[itemObject.id] = item
+
+func registerBuffFolder(folder: String):
+	var dir = DirAccess.new()
+	if dir.open(folder) == OK:
+		dir.list_dir_begin()
+		var file_name = dir.get_next()
+		while file_name != "":
+			if dir.current_is_dir():
+				pass
+				#print("Found directory: " + file_name)
+			else:
+				if(file_name.get_extension() == "gd"):
+					var full_path = folder.plus_file(file_name)
+					#print("Registered buff: " + full_path)
+					registerBuff(full_path)
+			file_name = dir.get_next()
+	else:
+		Log.printerr("An error occurred when trying to access the path "+folder)
+		
+func createBuff(id: String):
+	if(!buffs.has(id)):
+		Log.printerr("ERROR: buff with the id "+id+" wasn't found")
+		return null
+	return buffs[id].new()
+
+func getBuffClasses():
+	return buffs
+
+
+func registerEvent(path: String):
+	var item = load(path)
+	var itemObject = item.new()
+	events[itemObject.id] = itemObject
+
+func registerEventFolder(folder: String):
+	var dir = DirAccess.new()
+	if dir.open(folder) == OK:
+		dir.list_dir_begin()
+		var file_name = dir.get_next()
+		while file_name != "":
+			if dir.current_is_dir():
+				pass
+				#print("Found directory: " + file_name)
+			else:
+				if(file_name.get_extension() == "gd"):
+					var full_path = folder.plus_file(file_name)
+					#print("Registered event: " + full_path)
+					registerEvent(full_path)
+			file_name = dir.get_next()
+	else:
+		Log.printerr("An error occurred when trying to access the path "+folder)
+		
+func getEvent(id: String):
+	if(!events.has(id)):
+		Log.printerr("ERROR: event with the id "+id+" wasn't found")
+		return null
+	return events[id]
+
+func getEvents():
+	return events
+
+func registerModules():
+	var progressBase = 15.0/totalStages
+	var progressStep = 2.0/totalStages
+	var moduleCount = modules.size()
+	var loadedModuleCount = 0
+	for moduleID in modules:
+		var moduleObject = modules[moduleID]
+		var progressValue = progressBase + (progressStep * loadedModuleCount / moduleCount)
+		emit_signal("loadingUpdate", progressValue, moduleObject.getRegisterName())
+		yield(get_tree(), "idle_frame")
+		yield(get_tree(), "idle_frame")
+		
+		moduleObject.register()
+		print("Module "+moduleObject.id+" by "+moduleObject.author+" was registered")
+		loadedModuleCount += 1
+
+func postInitModules():
+	for moduleID in modules:
+		var moduleObject = modules[moduleID]
+		
+		moduleObject.postInit()
+
+func preinitModule(path: String):
+	var module = load(path)
+	var moduleObject = module.new()
+	moduleObject.preInit()
+	modules[moduleObject.id] = moduleObject
+
+func getModules():
+	return modules
+
+func getModule(id):
+	if(!modules.has(id)):
+		Log.printerr("ERROR: module with the id "+id+" wasn't found")
+		return null
+	return modules[id]
+
+func registerQuest(path: String):
+	var item = load(path)
+	var itemObject = item.new()
+	quests[itemObject.id] = itemObject
+
+func registerQuestFolder(folder: String):
+	var dir = DirAccess.new()
+	if dir.open(folder) == OK:
+		dir.list_dir_begin()
+		var file_name = dir.get_next()
+		while file_name != "":
+			if dir.current_is_dir():
+				pass
+				#print("Found directory: " + file_name)
+			else:
+				if(file_name.get_extension() == "gd"):
+					var full_path = folder.plus_file(file_name)
+					print("Registered quest: " + full_path)
+					registerQuest(full_path)
+			file_name = dir.get_next()
+	else:
+		Log.printerr("An error occurred when trying to access the path "+folder)
+		
+func getQuest(id: String):
+	if(!quests.has(id)):
+		Log.printerr("ERROR: quest with the id "+id+" wasn't found")
+		return null
+	return quests[id]
+
+func getQuests():
+	return quests
+
+func registerStat(path: String):
+	var item = load(path)
+	var itemObject = item.new()
+	stats[itemObject.id] = itemObject
+
+func getStat(id: String):
+	if(!stats.has(id)):
+		Log.printerr("ERROR: quest with the id "+id+" wasn't found")
+		return null
+	return stats[id]
+
+func getStats():
+	return stats
+
+
+func registerSkill(path: String):
+	var item = load(path)
+	var itemObject = item.new()
+	skills[itemObject.id] = item
+
+func registerSkillFolder(folder: String):
+	var dir = DirAccess.new()
+	if dir.open(folder) == OK:
+		dir.list_dir_begin()
+		var file_name = dir.get_next()
+		while file_name != "":
+			if dir.current_is_dir():
+				pass
+				#print("Found directory: " + file_name)
+			else:
+				if(file_name.get_extension() == "gd"):
+					var full_path = folder.plus_file(file_name)
+					#print("Registered skill: " + full_path)
+					registerSkill(full_path)
+			file_name = dir.get_next()
+	else:
+		Log.printerr("An error occurred when trying to access the path "+folder)
+		
+func createSkill(id: String):
+	if(!skills.has(id)):
+		Log.printerr("ERROR: skill with the id "+id+" wasn't found")
+		return null
+	return skills[id].new()
+
+func getSkills():
+	return skills
+
+
+func registerPerk(path: String):
+	var item = load(path)
+	var itemObject = item.new()
+	perks[itemObject.id] = item
+	perksObjects[itemObject.id] = itemObject
+	var skillGroup = itemObject.getSkillGroup()
+	if(!perksBySkillGroups.has(skillGroup)):
+		perksBySkillGroups[skillGroup] = []
+		
+	perksBySkillGroups[skillGroup].append(itemObject.id)
+
+func registerPerkFolder(folder: String):
+	var dir = DirAccess.new()
+	if dir.open(folder) == OK:
+		dir.list_dir_begin()
+		var file_name = dir.get_next()
+		while file_name != "":
+			if dir.current_is_dir():
+				pass
+				#print("Found directory: " + file_name)
+			else:
+				if(file_name.get_extension() == "gd"):
+					var full_path = folder.plus_file(file_name)
+					#print("Registered perk: " + full_path)
+					registerPerk(full_path)
+			file_name = dir.get_next()
+	else:
+		Log.printerr("An error occurred when trying to access the path "+folder)
+		
+func createPerk(id: String):
+	if(!perks.has(id)):
+		Log.printerr("ERROR: perk with the id "+id+" wasn't found")
+		return null
+	return perks[id].new()
+
+func getPerk(id: String):
+	if(!perksObjects.has(id)):
+		Log.printerr("ERROR: perk with the id "+id+" wasn't found")
+		return null
+	return perksObjects[id]
+
+func getPerksIDsBySkill(skillID: String):
+	if(!perksBySkillGroups.has(skillID)):
+		return []
+	return perksBySkillGroups[skillID]
+
+func getPerks():
+	return perksObjects
+
+
+func registerLustTopic(path: String):
+	var item = load(path)
+	var itemObject = item.new()
+	var ids = itemObject.handles_ids
+	for id in ids:
+		assert(!lustTopics.has(id))
+		lustTopics[id] = itemObject
+	lustTopicsObjects.append(itemObject)
+
+func registerLustTopicFolder(folder: String):
+	var dir = DirAccess.new()
+	if dir.open(folder) == OK:
+		dir.list_dir_begin()
+		var file_name = dir.get_next()
+		while file_name != "":
+			if dir.current_is_dir():
+				pass
+				#print("Found directory: " + file_name)
+			else:
+				if(file_name.get_extension() == "gd"):
+					var full_path = folder.plus_file(file_name)
+					#print("Registered lust topic: " + full_path)
+					registerLustTopic(full_path)
+			file_name = dir.get_next()
+	else:
+		Log.printerr("An error occurred when trying to access the path "+folder)
+		
+func getLustTopic(id: String):
+	if(!lustTopics.has(id)):
+		Log.printerr("ERROR: lust topic with the id "+id+" wasn't found")
+		return null
+	return lustTopics[id]
+
+func getLustTopicObjects():
+	return lustTopicsObjects
+
+
+
+func registerStageScene(path: String):
+	if(hasCachedPath(CACHE_STAGESCENE, path)):
+		stageScenes[getCachedID(CACHE_STAGESCENE, path)] = null
+		return
+	var item:PackedScene = load(path)
+	var itemObject = item.instance()
+	stageScenes[itemObject.id] = item
+	addCacheEntry(CACHE_STAGESCENE, itemObject.id, path)
+	var possibleStates = itemObject.getSupportedStates()
+	if(possibleStates != null && possibleStates.size() > 0):
+		stageScenesCachedStates[itemObject.id] = possibleStates
+	itemObject.queue_free()
+	
+	#stageScenes[path.get_file()] = item
+
+func registerStageSceneFolder(folder: String):
+	var dir = DirAccess.new()
+	if dir.open(folder) == OK:
+		dir.list_dir_begin()
+		var file_name = dir.get_next()
+		while file_name != "":
+			if dir.current_is_dir():
+				pass
+				#print("Found directory: " + file_name)
+			else:
+				if(file_name.get_extension() == "tscn"):
+					var full_path = folder.plus_file(file_name)
+					#print("Registered stage scene: " + full_path)
+					registerStageScene(full_path)
+			file_name = dir.get_next()
+	else:
+		Log.printerr("An error occurred when trying to access the path "+folder)
+		
+func createStageScene(id: String):
+	if(!stageScenes.has(id)):
+		Log.printerr("ERROR: stage scene with the id "+id+" wasn't found")
+		return null
+	
+	if(stageScenes[id] == null && hasCachedID(CACHE_STAGESCENE, id)):
+		var item:PackedScene = load(getCachedPath(CACHE_STAGESCENE, id))
+		if(item):
+			var itemObject = item.instance()
+			stageScenes[itemObject.id] = item
+			var possibleStates = itemObject.getSupportedStates()
+			if(possibleStates != null && possibleStates.size() > 0):
+				stageScenesCachedStates[itemObject.id] = possibleStates
+			return itemObject
+		else:
+			Log.printerr("ERROR: stage scene with the id "+id+" wasn't found (cache error)")
+			return null
+	
+	return stageScenes[id].instance()
+
+func getStageScenesCachedStates():
+	return stageScenesCachedStates
+
+func getStageScenesClasses():
+	return stageScenes
+
+func instanceCached(scenePath):
+	if(sceneCache.has(scenePath)):
+		return sceneCache[scenePath].instance()
+	sceneCache[scenePath] = load(scenePath)
+	return sceneCache[scenePath].instance()
+
+
+func registerLustAction(path: String):
+	var item = load(path)
+	var itemObject = item.new()
+	lustActions[itemObject.id] = itemObject
+	if(itemObject.hasByDefault):
+		defaultLustActions.append(itemObject.id)
+	if(itemObject.isOrgasmAction):
+		orgasmLustActions.append(itemObject.id)
+
+func registerLustActionFolder(folder: String):
+	var dir = DirAccess.new()
+	if dir.open(folder) == OK:
+		dir.list_dir_begin()
+		var file_name = dir.get_next()
+		while file_name != "":
+			if dir.current_is_dir():
+				pass
+				#print("Found directory: " + file_name)
+			else:
+				if(file_name.get_extension() == "gd"):
+					var full_path = folder.plus_file(file_name)
+					#print("Registered lust action: " + full_path)
+					registerLustAction(full_path)
+			file_name = dir.get_next()
+	else:
+		Log.printerr("An error occurred when trying to access the path "+folder)
+		
+func getLustAction(id: String):
+	if(!lustActions.has(id)):
+		Log.printerr("ERROR: lust action with the id "+id+" wasn't found")
+		return null
+	return lustActions[id]
+
+func getDefaultLustActions():
+	return defaultLustActions
+
+func getOrgasmLustActions():
+	return orgasmLustActions
+
+
+func registerLootList(path: String):
+	var item = load(path)
+	var itemObject = item.new()
+	for id in itemObject.handlesIds:
+		if(!lootLists.has(id)):
+			lootLists[id] = []
+		lootLists[id].append(itemObject)
+	for id in itemObject.handlesCharacters:
+		if(!lootListsByCharacter.has(id)):
+			lootListsByCharacter[id] = []
+		lootListsByCharacter[id].append(itemObject)
+	for id in itemObject.handlesBattles:
+		if(!lootListsByBattle.has(id)):
+			lootListsByBattle[id] = []
+		lootListsByBattle[id].append(itemObject)
+	if(itemObject.handlesAll):
+		lootListsAll.append(itemObject)
+	
+func registerLootListFolder(folder: String):
+	var dir = DirAccess.new()
+	if dir.open(folder) == OK:
+		dir.list_dir_begin()
+		var file_name = dir.get_next()
+		while file_name != "":
+			if dir.current_is_dir():
+				pass
+				#print("Found directory: " + file_name)
+			else:
+				if(file_name.get_extension() == "gd"):
+					var full_path = folder.plus_file(file_name)
+					#print("Registered loot list: " + full_path)
+					registerLootList(full_path)
+			file_name = dir.get_next()
+	else:
+		Log.printerr("An error occurred when trying to access the path "+folder)
+		
+func getLootLists(id: String):
+	if(!lootLists.has(id)):
+		return []
+	return lootLists[id]
+
+func getLootListsAll():
+	return lootListsAll
+
+func getLootListsByCharacter(charID: String):
+	if(!lootListsByCharacter.has(charID)):
+		return []
+	return lootListsByCharacter[charID]
+
+func preinitModulesHooks(folder: String):
+	var start = OS.get_ticks_usec()
+	
+	var dir = DirAccess.new()
+	if dir.open(folder) == OK:
+		dir.list_dir_begin(true)
+		var file_name = dir.get_next()
+		while file_name != "":
+			if dir.current_is_dir():
+				var full_path = folder.plus_file(file_name)
+				#print("FOUND DIR: "+full_path)
+				
+				var preInitPath:String = full_path.plus_file("PreInit.gd")
+				if(dir.file_exists(preInitPath)):
+					#print("PRE-INIT FILE: " +preInitPath)
+					var preInitScript = load(preInitPath)
+					var _preInitObject = preInitScript.new()
+			file_name = dir.get_next()
+	else:
+		Log.printerr("An error occurred when trying to access the path "+folder)
+
+	var end = OS.get_ticks_usec()
+	var worker_time = (end-start)/1000000.0
+	Log.print("MODULES pre-initialion hooks run in: %s seconds" % [worker_time])
+
+func preinitModulesFolder(folder: String):
+	var progressBase = 1.0/totalStages
+	var progressStep = 2.0/totalStages
+	var start = OS.get_ticks_usec()
+	
+	var moduleFiles: Array = []
+	var dir = DirAccess.new()
+	if dir.open(folder) == OK:
+		dir.list_dir_begin(true)
+		var file_name = dir.get_next()
+		while file_name != "":
+			if dir.current_is_dir():
+				var full_path = folder.plus_file(file_name)
+				#print("FOUND DIR: "+full_path)
+				
+				var modulePath:String = full_path.plus_file("Module.gd")
+				if(dir.file_exists(modulePath)):
+					moduleFiles.append([file_name, modulePath])
+			file_name = dir.get_next()
+		var moduleCount = moduleFiles.size()
+		var loadedModuleCount = 0
+		for moduleFile in moduleFiles:
+			var progressValue = progressBase + (progressStep * loadedModuleCount / moduleCount)
+			emit_signal("loadingUpdate", progressValue, "Loading " + moduleFile[0])
+			yield(get_tree(), "idle_frame")
+			yield(get_tree(), "idle_frame")
+			preinitModule(moduleFile[1])
+			loadedModuleCount += 1
+	else:
+		Log.printerr("An error occurred when trying to access the path "+folder)
+
+	var end = OS.get_ticks_usec()
+	var worker_time = (end-start)/1000000.0
+	Log.print("MODULES pre-initialized in: %s seconds" % [worker_time])
+
+func registerFightClubFighter(path: String):
+	var item = load(path)
+	var itemObject = item.new()
+	
+	var rank = itemObject.getRank()
+	if(!fightClubFightersByRank.has(rank)):
+		fightClubFightersByRank[rank] = []
+	
+	fightClubFightersByRank[rank].append(itemObject.id)
+	fightClubFighters[itemObject.id] = itemObject
+
+func getFightClubFighter(id):
+	if(!fightClubFighters.has(id)):
+		return null
+	return fightClubFighters[id]
+
+func getFightClubFightersIDsByRank(rank):
+	if(!fightClubFightersByRank.has(rank)):
+		return []
+	
+	return fightClubFightersByRank[rank]
+
+func sortFightClubFighterFunc(a, b):
+	var aFighter = fightClubFighters[a]
+	var bFighter = fightClubFighters[b]
+	if aFighter.getOrder() > bFighter.getOrder():
+		return true
+	return false
+
+func sortFightClubFighters():
+	for rank in fightClubFightersByRank:
+		fightClubFightersByRank[rank].sort_custom(self, "sortFightClubFighterFunc")
+
+
+func registerMapFloor(id: String, path: String):
+	if(mapFloors.has(id)):
+		print(id+" floor is being overwritten!")
+	mapFloors[id] = path
+
+func registerMapFloorFolder(folder: String):
+	var dir = DirAccess.new()
+	if dir.open(folder) == OK:
+		dir.list_dir_begin()
+		var file_name = dir.get_next()
+		while file_name != "":
+			if dir.current_is_dir():
+				pass
+				#print("Found directory: " + file_name)
+			else:
+				if(file_name.get_extension() == "tscn"):
+					var full_path = folder.plus_file(file_name)
+					#print("Registered map floor: " + full_path)
+					registerMapFloor(full_path.get_file().get_basename(), full_path)
+			file_name = dir.get_next()
+	else:
+		Log.printerr("An error occurred when trying to access the path "+folder)
+
+func getMapFloors():
+	return mapFloors
+
+
+func registerImagePack(path: String):
+	var imagepack = load(path)
+	var imagepackObject = imagepack.new()
+	imagePacks[imagepackObject.id] = imagepackObject
+
+func registerImagePackFolder(folder: String):
+	var dir = DirAccess.new()
+	if dir.open(folder) == OK:
+		dir.list_dir_begin(true)
+		var file_name = dir.get_next()
+		while file_name != "":
+			if dir.current_is_dir():
+				var full_path = folder.plus_file(file_name)
+				#print("FOUND DIR: "+full_path)
+				
+				var imagePackPath:String = full_path.plus_file("ImagePack.gd")
+				if(dir.file_exists(imagePackPath)):
+					#print("IMAGE PACK FILE: " +modulePath)
+					registerImagePack(imagePackPath)
+				pass
+			file_name = dir.get_next()
+	else:
+		Log.printerr("An error occurred when trying to access the path "+folder)
+		
+func getImagePack(id: String):
+	if(!imagePacks.has(id)):
+		Log.printerr("ERROR: image pack with the id "+id+" wasn't found")
+		return null
+	return imagePacks[id]
+
+func getImagePacks():
+	return imagePacks
+
+
+
+func registerWorldEdit(path: String):
+	var worldEdit = load(path)
+	var worldEditObject = worldEdit.new()
+	worldEdits[worldEditObject.id] = worldEditObject
+	if(worldEditObject.isRegular):
+		regularWorldEdits.append(worldEditObject)
+
+func registerWorldEditFolder(folder: String):
+	var dir = DirAccess.new()
+	if dir.open(folder) == OK:
+		dir.list_dir_begin()
+		var file_name = dir.get_next()
+		while file_name != "":
+			if dir.current_is_dir():
+				pass
+				#print("Found directory: " + file_name)
+			else:
+				if(file_name.get_extension() == "gd"):
+					var full_path = folder.plus_file(file_name)
+					#print("Registered world edit: " + full_path)
+					registerWorldEdit(full_path)
+			file_name = dir.get_next()
+	else:
+		Log.printerr("An error occurred when trying to access the path "+folder)
+		
+func getWorldEdit(id: String):
+	if(!worldEdits.has(id)):
+		Log.printerr("ERROR: world edit with the id "+id+" wasn't found")
+		return null
+	return worldEdits[id]
+
+func getWorldEdits():
+	return worldEdits
+
+func getRegularWorldEdits():
+	return regularWorldEdits
+
+
+
+
+
+func registerSexActivity(path: String):
+	var sexActivity = load(path)
+	var sexActivityObject = sexActivity.new()
+	
+	sexActivities[sexActivityObject.id] = sexActivity
+	sexActivitiesReferences[sexActivityObject.id] = sexActivityObject
+
+func registerSexActivitiesFolder(folder: String):
+	var dir = DirAccess.new()
+	if dir.open(folder) == OK:
+		dir.list_dir_begin()
+		var file_name = dir.get_next()
+		while file_name != "":
+			if dir.current_is_dir():
+				pass
+				#print("Found directory: " + file_name)
+			else:
+				if(file_name.get_extension() == "gd"):
+					var full_path = folder.plus_file(file_name)
+					#print("Registered sex activity: " + full_path)
+					registerSexActivity(full_path)
+			file_name = dir.get_next()
+	else:
+		Log.printerr("An error occurred when trying to access the path "+folder)
+		
+func createSexActivity(id: String):
+	if(sexActivities.has(id)):
+		return sexActivities[id].new()
+	else:
+		Log.printerr("ERROR: sex activity with the id "+id+" wasn't found")
+		return null
+
+func getSexActivityReference(id: String):
+	if(sexActivitiesReferences.has(id)):
+		return sexActivitiesReferences[id]
+	else:
+		Log.printerr("ERROR: sex activity with the id "+id+" wasn't found")
+		return null
+		
+func getSexActivityReferences():
+	return sexActivitiesReferences
+
+
+
+func registerFetish(path: String):
+	var loadedClass = load(path)
+	var object = loadedClass.new()
+	
+	fetishes[object.id] = object
+
+func getScriptsInFolder(folder: String):
+	var result = []
+	
+	var dir = DirAccess.new()
+	if dir.open(folder) == OK:
+		dir.list_dir_begin()
+		var file_name = dir.get_next()
+		while file_name != "":
+			if dir.current_is_dir():
+				pass
+				#print("Found directory: " + file_name)
+			else:
+				if(file_name.get_extension() == "gd"):
+					var full_path = folder.plus_file(file_name)
+					result.append(full_path)
+			file_name = dir.get_next()
+	else:
+		Log.printerr("An error occurred when trying to access the path "+folder)
+	
+	return result
+
+func getScriptsInSubFolders(folder: String):
+	var result = []
+	
+	var dir = DirAccess.new()
+	if dir.open(folder) == OK:
+		dir.list_dir_begin(true)
+		var file_name = dir.get_next()
+		while file_name != "":
+			if dir.current_is_dir():
+				var full_path = folder.plus_file(file_name)
+				result.append_array(getScriptsInFolder(full_path))
+				#print("Found directory: " + file_name)
+			else:
+#				if(file_name.get_extension() == "gd"):
+#					var full_path = folder.plus_file(file_name)
+#					result.append(full_path)
+				pass
+			file_name = dir.get_next()
+	else:
+		Log.printerr("An error occurred when trying to access the path "+folder)
+	
+	return result
+
+func getScriptsInFoldersRecursive(folder: String, ignoreBaseDir = false):
+	var result = []
+	
+	var dir = DirAccess.new()
+	if dir.open(folder) == OK:
+		dir.list_dir_begin(true)
+		var file_name = dir.get_next()
+		while file_name != "":
+			if dir.current_is_dir():
+				var full_path = folder.plus_file(file_name)
+				result.append_array(getScriptsInFoldersRecursive(full_path, false))
+				#print("Found directory: " + file_name)
+			else:
+				if(!ignoreBaseDir && file_name.get_extension() == "gd"):
+					var full_path = folder.plus_file(file_name)
+					result.append(full_path)
+				pass
+			file_name = dir.get_next()
+	else:
+		Log.printerr("An error occurred when trying to access the path "+folder)
+	
+	return result
+
+func getDatapacksInFolder(folder: String):
+	if(!Util.folderExists(folder)):
+		return []
+	var result:Array = []
+	
+	var dir = DirAccess.new()
+	if dir.open(folder) == OK:
+		dir.list_dir_begin()
+		var file_name = dir.get_next()
+		while file_name != "":
+			if dir.current_is_dir():
+				pass
+				#print("Found directory: " + file_name)
+			else:
+				if(file_name.get_extension() in ["res", "tres"]):
+					var full_path = folder.plus_file(file_name)
+					result.append(full_path)
+			file_name = dir.get_next()
+	else:
+		Log.printerr("An error occurred when trying to access the path "+folder)
+	
+	return result
+
+func registerFetishesFolder(folder: String):
+	var scripts = getScriptsInFolder(folder)
+	for scriptPath in scripts:
+		registerFetish(scriptPath)
+
+func getFetish(id: String):
+	if(fetishes.has(id)):
+		return fetishes[id]
+	else:
+		Log.printerr("ERROR: fetish with the id "+id+" wasn't found")
+		return null
+
+func getFetishes():
+	return fetishes
+
+
+
+
+func registerSexGoal(path: String):
+	var loadedClass = load(path)
+	var object = loadedClass.new()
+	
+	sexGoals[object.id] = object
+
+func registerSexGoalsFolder(folder: String):
+	var scripts = getScriptsInFolder(folder)
+	for scriptPath in scripts:
+		registerSexGoal(scriptPath)
+
+func getSexGoal(id: String):
+	if(sexGoals.has(id)):
+		return sexGoals[id]
+	else:
+		Log.printerr("ERROR: sex goal with the id "+id+" wasn't found")
+		return null
+
+func getSexGoals():
+	return sexGoals
+
+
+
+func registerGameExtender(path: String):
+	var loadedClass = load(path)
+	var object = loadedClass.new()
+	
+	gameExtenders[object.id] = object
+
+func registerGameExtenderFolder(folder: String):
+	var scripts = getScriptsInFolder(folder)
+	for scriptPath in scripts:
+		registerGameExtender(scriptPath)
+
+func getGameExtender(id: String):
+	if(gameExtenders.has(id)):
+		return gameExtenders[id]
+	else:
+		Log.printerr("ERROR: game extender with the id "+id+" wasn't found")
+		return null
+
+func getGameExtenders():
+	return gameExtenders
+
+
+func registerLootTable(path: String):
+	var loadedClass = load(path)
+	var object = loadedClass.new()
+	
+	lootTables[object.id] = object
+	lootTablesClasses[object.id] = loadedClass
+
+func registerLootTableFolder(folder: String):
+	var scripts = getScriptsInFolder(folder)
+	for scriptPath in scripts:
+		registerLootTable(scriptPath)
+
+func getLootTable(id: String):
+	if(lootTables.has(id)):
+		return lootTables[id]
+	else:
+		Log.printerr("ERROR: loot table with the id "+id+" wasn't found")
+		return null
+
+func createLootTable(id: String):
+	if(lootTablesClasses.has(id)):
+		return lootTablesClasses[id].new()
+	else:
+		Log.printerr("ERROR: loot table with the id "+id+" wasn't found")
+		return null
+
+func getLootTables():
+	return lootTables
+
+
+
+func registerComputer(path: String):
+	var loadedClass = load(path)
+	var object = loadedClass.new()
+	
+	computers[object.id] = loadedClass
+
+func registerComputerFolder(folder: String):
+	var scripts = getScriptsInFolder(folder)
+	for scriptPath in scripts:
+		registerComputer(scriptPath)
+
+func createComputer(id: String):
+	if(computers.has(id)):
+		return computers[id].new()
+	else:
+		Log.printerr("ERROR: computer with the id "+id+" wasn't found")
+		return null
+
+func getComputers():
+	return computers
+
+
+func registerFluid(path: String):
+	var loadedClass = load(path)
+	var object = loadedClass.new()
+	
+	fluids[object.id] = object
+
+func registerFluidsFolder(folder: String):
+	var scripts = getScriptsInFolder(folder)
+	for scriptPath in scripts:
+		registerFluid(scriptPath)
+
+func getFluid(id: String):
+	if(fluids.has(id)):
+		return fluids[id]
+	else:
+		Log.printerr("ERROR: fluid with the id "+id+" wasn't found")
+		return null
+
+func getFluids():
+	return fluids
+
+
+
+func registerSexType(path: String):
+	var loadedClass = load(path)
+	var object = loadedClass.new()
+	
+	sexTypes[object.id] = loadedClass
+
+func registerSexTypeFolder(folder: String):
+	var scripts = getScriptsInFolder(folder)
+	for scriptPath in scripts:
+		registerSexType(scriptPath)
+
+func createSexType(id: String):
+	if(sexTypes.has(id)):
+		return sexTypes[id].new()
+	else:
+		Log.printerr("ERROR: sex type with the id "+id+" wasn't found")
+		return null
+
+func getSexTypes():
+	return sexTypes
+
+
+
+
+func registerSkin(path: String, authorOverride = ""):
+	var loadedClass = load(path)
+	var object = loadedClass.new()
+	
+	if(authorOverride != ""):
+		object.author = authorOverride
+	skins[object.id] = object
+
+func registerSkinsFolder(folder: String, authorOverride = ""):
+	var scripts = getScriptsInSubFolders(folder)
+	for scriptPath in scripts:
+		registerSkin(scriptPath, authorOverride)
+
+func getSkin(id: String):
+	if(skins.has(id)):
+		return skins[id]
+	elif(":" in id):
+		var splitData = Util.splitOnFirst(id, ":")
+		var datapackID = splitData[0]
+		var skinID = splitData[1]
+		
+		if(!datapacks.has(datapackID) || !datapacks[datapackID]["skins"].has(skinID)):
+			Log.printerr("ERROR: skin with the id "+id+" wasn't found")
+			return null
+		return datapacks[datapackID]["skins"][skinID]
+	else:
+		Log.printerr("ERROR: skin with the id "+id+" wasn't found")
+		return null
+
+func getSkins():
+	return skins
+
+func getSkinsAllKeys():
+	var result = skins.keys()
+	for datapackID in datapacks:
+		var datapack = datapacks[datapackID]
+		for skinID in datapack.skins:
+			result.append(datapackID+":"+skinID)
+	return result
+
+func findCustomSkins():
+	var skinsFolder = "user://custom_skins"
+	if(OS.get_name() == "Android"):
+		var externalDir:String = OS.get_system_dir(OS.SYSTEM_DIR_DOCUMENTS)
+		var finalDir = externalDir.plus_file("BDCCMods/custom_skins")
+		skinsFolder = finalDir
+	
+	for skinPath in Util.getFilesInFolder(skinsFolder):
+		var customSkin = preload("res://Player/Player3D/Skins/CustomSkin.gd").new()
+		var skinName = skinPath.get_file()
+		customSkin.id = skinName
+		customSkin.customName = skinName
+		customSkin.setTexturePath(skinPath)
+		skins[customSkin.id] = customSkin
+
+
+
+func registerPartSkin(path: String, authorOverride = ""):
+	var loadedClass = load(path)
+	var object = loadedClass.new()
+	
+	if(authorOverride != ""):
+		object.author = authorOverride
+	if(!partSkins.has(object.partID)):
+		partSkins[object.partID] = {}
+	partSkins[object.partID][object.id] = object
+
+func registerPartSkinsFolder(folder: String, authorOverride = ""):
+	var scripts = getScriptsInFoldersRecursive(folder, true)
+	for scriptPath in scripts:
+		registerPartSkin(scriptPath, authorOverride)
+
+func getPartSkin(partID: String, id: String):
+	if(!partSkins.has(partID)):
+		return null
+	if(partSkins[partID].has(id)):
+		return partSkins[partID][id]
+	else:
+		Log.printerr("ERROR: part skin with the id "+id+" wasn't found")
+		return null
+
+func getPartSkins(partID: String):
+	if(!partSkins.has(partID)):
+		return {}
+	return partSkins[partID]
+	
+	
+func registerSpeechModifier(path: String):
+	var loadedClass = load(path)
+	var object = loadedClass.new()
+	speechModifiers.append(object)
+
+func registerSpeechModifiersFolder(folder: String):
+	var scripts = getScriptsInFolder(folder)
+	for scriptPath in scripts:
+		registerSpeechModifier(scriptPath)
+
+func getSpeechModifiers():
+	return speechModifiers
+	
+static func sortSpeechModifiersByPriority_sortFunc(a, b):
+	if a.priority > b.priority:
+		return true
+	return false
+
+func sortSpeechModifiersByPriority():
+	speechModifiers.sort_custom(self, "sortSpeechModifiersByPriority_sortFunc")
+
+
+
+func registerSlaveBreakTask(path: String):
+	var loadedClass = load(path)
+	var object = loadedClass.new()
+	
+	slaveBreakTasks[object.id] = loadedClass
+	slaveBreakTaskRefs[object.id] = object
+
+func registerSlaveBreakTaskFolder(folder: String):
+	var scripts = getScriptsInFolder(folder)
+	for scriptPath in scripts:
+		registerSlaveBreakTask(scriptPath)
+
+func createSlaveBreakTask(id: String):
+	if(slaveBreakTasks.has(id)):
+		return slaveBreakTasks[id].new()
+	else:
+		Log.printerr("ERROR: slave break task with the id "+id+" wasn't found")
+		return null
+
+func getSlaveBreakTaskRef(id: String):
+	if(slaveBreakTaskRefs.has(id)):
+		return slaveBreakTaskRefs[id]
+	else:
+		Log.printerr("ERROR: slave break task with the id "+id+" wasn't found")
+		return null
+
+func getSlaveBreakTaskRefs():
+	return slaveBreakTaskRefs
+
+
+func registerSlaveType(path: String):
+	var loadedClass = load(path)
+	var object = loadedClass.new()
+	
+	slaveTypes[object.id] = object
+
+func registerSlaveTypeFolder(folder: String):
+	var scripts = getScriptsInFolder(folder)
+	for scriptPath in scripts:
+		registerSlaveType(scriptPath)
+
+func getSlaveType(id: String):
+	if(slaveTypes.has(id)):
+		return slaveTypes[id]
+	else:
+		Log.printerr("ERROR: slave type with the id "+id+" wasn't found")
+		return null
+
+func getSlaveTypes():
+	return slaveTypes
+
+
+func registerSlaveAction(path: String):
+	var loadedClass = load(path)
+	var object = loadedClass.new()
+	
+	slaveActions[object.id] = object
+
+func registerSlaveActionFolder(folder: String):
+	var scripts = getScriptsInFolder(folder)
+	for scriptPath in scripts:
+		registerSlaveAction(scriptPath)
+
+func getSlaveAction(id: String):
+	if(slaveActions.has(id)):
+		return slaveActions[id]
+	else:
+		Log.printerr("ERROR: slave action with the id "+id+" wasn't found")
+		return null
+
+func getSlaveActions():
+	return slaveActions
+
+func getSlaveActionIDsOfType(actionsType):
+	var result = []
+	
+	for actionID in slaveActions:
+		var theAction = slaveActions[actionID]
+		
+		if(theAction.actionType == actionsType):
+			result.append(actionID)
+	return result
+
+
+
+func registerSlaveEvent(path: String):
+	var loadedClass = load(path)
+	var object = loadedClass.new()
+	
+	slaveEvents[object.id] = object
+
+func registerSlaveEventFolder(folder: String):
+	var scripts = getScriptsInFolder(folder)
+	for scriptPath in scripts:
+		registerSlaveEvent(scriptPath)
+
+func getSlaveEvent(id: String):
+	if(slaveEvents.has(id)):
+		return slaveEvents[id]
+	else:
+		Log.printerr("ERROR: slave event with the id "+id+" wasn't found")
+		return null
+
+func getSlaveEvents():
+	return slaveEvents
+
+
+
+func registerSlaveActivity(path: String):
+	var loadedClass = load(path)
+	var object = loadedClass.new()
+	
+	slaveActivities[object.id] = loadedClass
+
+func registerSlaveActivitiesFolder(folder: String):
+	var scripts = getScriptsInFolder(folder)
+	for scriptPath in scripts:
+		registerSlaveActivity(scriptPath)
+
+func createSlaveActivity(id: String):
+	if(slaveActivities.has(id)):
+		return slaveActivities[id].new()
+	else:
+		Log.printerr("ERROR: slave activity with the id "+id+" wasn't found")
+		return null
+
+
+
+func getDatapack(id:String) -> Datapack:
+	if(datapacks.has(id)):
+		return datapacks[id]
+	Log.printerr("ERROR: Datapack with the id "+id+" wasn't found")
+	return null
+
+func getDatapacks():
+	return datapacks
+
+func loadDatapacksFromFolder(folder: String):
+	var possiblePacks = getDatapacksInFolder(folder)
+	
+	for possiblePackPath in possiblePacks:
+		if(ResourceLoader.exists(possiblePackPath)):
+			var newPackResource = ResourceLoader.load(possiblePackPath)
+			
+			if(newPackResource is DatapackResource):
+				var newDatapack:Datapack = Datapack.new()
+				newDatapack.loadedPath = possiblePackPath
+				newDatapack.loadFromResource(newPackResource)
+				
+				if(datapacks.has(newDatapack.id)):
+					Log.printerr("ERROR: Datapack id collision, two or more datapacks have the same id '"+str(newDatapack.id)+"'")
+				else:
+					datapacks[newDatapack.id] = newDatapack
+			else:
+				Log.printerr("Found datapack that is not of a right type at path: '"+str(possiblePackPath)+"'")
+		else:
+			Log.printerr("Found bad datapack at path: '"+str(possiblePackPath)+"'")
+
+func reloadPacks():
+	datapacks.clear()
+	loadDatapacksFromFolder(getDatapacksFolder())
+	loadDatapacksFromFolder("res://StaticDatapacks")
+
+func deleteDatapack(id:String):
+	if(datapacks.has(id)):
+		var path = datapacks[id].getLoadedPath()#getDatapacksFolder().plus_file(datapacks[id].getDatapackFileName())
+		
+		if(Util.removeFile(path) == OK):
+			#reloadPacks()
+			return true
+	return false
+
+
+
+func registerInteraction(path: String):
+	var loadedClass = load(path)
+	var object = loadedClass.new()
+	
+	interactions[object.id] = loadedClass
+	interactionRefs[object.id] = object
+
+func registerInteractionFolder(folder: String):
+	var scripts = getScriptsInFolder(folder)
+	for scriptPath in scripts:
+		registerInteraction(scriptPath)
+
+func createInteraction(id: String):
+	if(interactions.has(id)):
+		return interactions[id].new()
+	else:
+		Log.printerr("ERROR: interaction with the id "+id+" wasn't found")
+		return null
+
+func getInteractionRef(id: String):
+	if(interactionRefs.has(id)):
+		return interactionRefs[id]
+	else:
+		Log.printerr("ERROR: interaction with the id "+id+" wasn't found")
+		return null
+
+func getInteractions():
+	return interactionRefs
+
+
+
+
+func registerGlobalTask(path: String):
+	var loadedClass = load(path)
+	var object = loadedClass.new()
+	
+	globalTasks[object.id] = loadedClass
+
+func registerGlobalTaskFolder(folder: String):
+	var scripts = getScriptsInFolder(folder)
+	for scriptPath in scripts:
+		registerGlobalTask(scriptPath)
+
+func createGlobalTask(id: String):
+	if(globalTasks.has(id)):
+		return globalTasks[id].new()
+	else:
+		Log.printerr("ERROR: global task with the id "+id+" wasn't found")
+		return null
+		
+func getGlobalTasks():
+	return globalTasks
+
+
+
+func registerRepStat(path: String):
+	var loadedClass = load(path)
+	var object = loadedClass.new()
+	
+	repStats[object.id] = object
+
+func registerRepStatFolder(folder: String):
+	var scripts = getScriptsInFolder(folder)
+	for scriptPath in scripts:
+		registerRepStat(scriptPath)
+
+func getRepStat(id: String):
+	if(repStats.has(id)):
+		return repStats[id]
+	else:
+		Log.printerr("ERROR: reputation stat with the id "+id+" wasn't found")
+		return null
+		
+func getRepStats():
+	return repStats
+
+
+
+
+func registerAuctionTrait(path: String):
+	var loadedClass = load(path)
+	var object = loadedClass.new()
+	
+	for _id in object.ids:
+		auctionTraits[_id] = loadedClass
+		auctionTraitsRefs[_id] = object
+
+func registerAuctionTraitFolder(folder: String):
+	var scripts = getScriptsInFolder(folder)
+	for scriptPath in scripts:
+		registerAuctionTrait(scriptPath)
+
+func getAuctionTrait(id: String):
+	if(auctionTraitsRefs.has(id)):
+		return auctionTraitsRefs[id]
+	else:
+		Log.printerr("ERROR: auction trait with the id "+id+" wasn't found")
+		return null
+
+func createAuctionTrait(id: String):
+	if(auctionTraits.has(id)):
+		return auctionTraits[id].new()
+	else:
+		Log.printerr("ERROR: auction trait with the id "+id+" wasn't found")
+		return null
+		
+func getAuctionTraits():
+	return auctionTraitsRefs
+
+
+
+
+
+func registerAuctionAction(path: String):
+	var loadedClass = load(path)
+	var object = loadedClass.new()
+	
+	auctionActions[object.id] = object
+
+func registerAuctionActionFolder(folder: String):
+	var scripts = getScriptsInFolder(folder)
+	for scriptPath in scripts:
+		registerAuctionAction(scriptPath)
+
+func getAuctionAction(id: String):
+	if(auctionActions.has(id)):
+		return auctionActions[id]
+	else:
+		Log.printerr("ERROR: auction action with the id "+id+" wasn't found")
+		return null
+		
+func getAuctionActions():
+	return auctionActions
+
+
+
+func registerPawnType(path: String):
+	var loadedClass = load(path)
+	var object = loadedClass.new()
+	
+	pawnTypes[object.id] = object
+
+func registerPawnTypesFolder(folder: String):
+	var scripts = getScriptsInFolder(folder)
+	for scriptPath in scripts:
+		registerPawnType(scriptPath)
+
+func getPawnType(id: String):
+	if(pawnTypes.has(id)):
+		return pawnTypes[id]
+	else:
+		Log.printerr("ERROR: pawn type with the id "+id+" wasn't found")
+		return null
+		
+func getPawnTypes():
+	return pawnTypes
+
+
+func registerTransformation(path: String):
+	var loadedClass = load(path)
+	var object = loadedClass.new()
+	
+	transformations[object.id] = loadedClass
+	transformationRefs[object.id] = object
+
+func registerTransformationsFolder(folder: String):
+	var scripts = getScriptsInFolder(folder)
+	for scriptPath in scripts:
+		registerTransformation(scriptPath)
+
+func getTransformationRef(id: String):
+	if(transformationRefs.has(id)):
+		return transformationRefs[id]
+	else:
+		Log.printerr("ERROR: transformation with the id "+id+" wasn't found")
+		return null
+		
+func createTransformation(id: String):
+	if(transformations.has(id)):
+		return transformations[id].new()
+	else:
+		Log.printerr("ERROR: transformation with the id "+id+" wasn't found")
+		return null
+		
+func getTransformationRefs():
+	return transformationRefs
+
+
+func registerTransformationEffect(path: String):
+	var loadedClass = load(path)
+	var object = loadedClass.new()
+	
+	transformationEffects[object.id] = loadedClass
+
+func registerTransformationEffectsFolder(folder: String):
+	var scripts = getScriptsInFolder(folder)
+	for scriptPath in scripts:
+		registerTransformationEffect(scriptPath)
+
+func createTransformationEffect(id: String):
+	if(transformationEffects.has(id)):
+		return transformationEffects[id].new()
+	else:
+		Log.printerr("ERROR: transformation effect with the id "+id+" wasn't found")
+		return null
+		
+func getTransformationEffects():
+	return transformationEffects
+
+
+
+
+
+func registerNurseryTask(path: String):
+	var loadedClass = load(path)
+	var object = loadedClass.new()
+	
+	nurseryTasks[object.id] = loadedClass
+
+func registerNurseryTaskFolder(folder: String):
+	var scripts = getScriptsInFolder(folder)
+	for scriptPath in scripts:
+		registerNurseryTask(scriptPath)
+
+func createNurseryTask(id: String):
+	if(nurseryTasks.has(id)):
+		return nurseryTasks[id].new()
+	else:
+		Log.printerr("ERROR: nursery task with the id "+id+" wasn't found")
+		return null
+		
+func getNurseryTasks():
+	return nurseryTasks
+
+
+func registerDrugDenEvent(path: String):
+	var loadedClass = load(path)
+	var object = loadedClass.new()
+	
+	drugDenEvents[object.id] = loadedClass
+	drugDenEventRefs[object.id] = object
+
+func registerDrugDenEventFolder(folder: String):
+	var scripts = getScriptsInFolder(folder)
+	for scriptPath in scripts:
+		registerDrugDenEvent(scriptPath)
+
+func createDrugDenEvent(id: String):
+	if(drugDenEvents.has(id)):
+		return drugDenEvents[id].new()
+	else:
+		Log.printerr("ERROR: drug den event with the id "+id+" wasn't found")
+		return null
+
+func getDrugDenEventRef(id: String):
+	if(drugDenEventRefs.has(id)):
+		return drugDenEventRefs[id]
+	else:
+		Log.printerr("ERROR: drug den event with the id "+id+" wasn't found")
+		return null
+		
+func getDrugDenEvents():
+	return drugDenEventRefs
+
+
+func registerSexReactionHandler(path: String):
+	var loadedClass = load(path)
+	var object = loadedClass.new()
+	
+	for reactionID in object.handles:
+		if(!sexReactionHandlersByID.has(reactionID)):
+			sexReactionHandlersByID[reactionID] = []
+		sexReactionHandlersByID[reactionID].append(object)
+
+func registerSexReactionHandlerFolder(folder: String):
+	var scripts = getScriptsInFolder(folder)
+	for scriptPath in scripts:
+		registerSexReactionHandler(scriptPath)
+
+func getSexReactionHandlersFor(id: int):
+	if(sexReactionHandlersByID.has(id)):
+		return sexReactionHandlersByID[id]
+	else:
+		return []
+		
+
+
+
+func registerPlayerSlaveryDef(path: String):
+	var loadedClass = load(path)
+	var object = loadedClass.new()
+	
+	playerSlaveryDefs[object.id] = object
+
+func registerPlayerSlaveryDefFolder(folder: String):
+	var scripts = getScriptsInFolder(folder)
+	for scriptPath in scripts:
+		registerPlayerSlaveryDef(scriptPath)
+
+func getPlayerSlaveryDef(id: String):
+	if(playerSlaveryDefs.has(id)):
+		return playerSlaveryDefs[id]
+	else:
+		Log.printerr("ERROR: player slavery with the id "+id+" wasn't found")
+		return null
+		
+func getPlayerSlaveryDefs():
+	return playerSlaveryDefs
+
+
+
+func registerSpecialRelationship(path: String):
+	var loadedClass = load(path)
+	var object = loadedClass.new()
+	
+	specialRelationships[object.id] = loadedClass
+	specialRelationshipRefs[object.id] = object
+
+func registerSpecialRelantionshipFolder(folder: String):
+	var scripts = getScriptsInFolder(folder)
+	for scriptPath in scripts:
+		registerSpecialRelationship(scriptPath)
+
+func createSpecialRelationship(id: String):
+	if(specialRelationships.has(id)):
+		return specialRelationships[id].new()
+	else:
+		Log.printerr("ERROR: special relationship with the id "+id+" wasn't found")
+		return null
+
+func getSpecialRelationshipRef(id: String):
+	if(specialRelationshipRefs.has(id)):
+		return specialRelationshipRefs[id]
+	else:
+		Log.printerr("ERROR: special relationship with the id "+id+" wasn't found")
+		return null
+		
+func getSpecialRelationships():
+	return specialRelationshipRefs
+
+
+
+
+func saveRegistryCache() -> Dictionary:
+	var data:Dictionary = {
+		pathToIDCache = pathToIDCache,
+		IDToPathCache = IDToPathCache,
+		sceneCreators = sceneCreators,
+		stageScenesCachedStates = stageScenesCachedStates,
+	}
+	
+	return data
+
+func loadRegistryCache(_data:Dictionary):
+	pathToIDCache = SAVE.loadVar(_data, "pathToIDCache", {})
+	IDToPathCache = SAVE.loadVar(_data, "IDToPathCache", {})
+	sceneCreators = SAVE.loadVar(_data, "sceneCreators", {})
+	stageScenesCachedStates = SAVE.loadVar(_data, "stageScenesCachedStates", {})
+
+func resetRegistryCache(shouldSaveToFile:bool=false):
+	pathToIDCache = {}
+	IDToPathCache = {}
+	sceneCreators = {}
+	stageScenesCachedStates = {}
+	fillBaseCacheFields()
+	if(shouldSaveToFile):
+		saveRegistryCacheToFile(true)
+
+const cacheFilePath = "user://registryCache.json"
+
+func saveRegistryCacheToFile(forceSave:bool = false):
+	if(!isCacheEnabled() && !forceSave):
+		return
+	var data:Dictionary = saveRegistryCache()
+
+	var save_game = File.new()
+	save_game.open(cacheFilePath, File.WRITE)
+	save_game.store_line(var2str(data))
+	save_game.close()
+
+func loadRegistryCacheFromFile():
+	checkCacheEnabled()
+	if(Util.hasCommandLineArgument("-resetRegistryCache")): # We just don't load it
+		fillBaseCacheFields()
+		return
+	if(!isCacheEnabled()):
+		fillBaseCacheFields()
+		return
+	var save_game = File.new()
+	if not save_game.file_exists(cacheFilePath):
+		fillBaseCacheFields()
+		return
+	
+	save_game.open(cacheFilePath, File.READ)
+	var data = str2var(save_game.get_as_text())
+	if(data is Dictionary):
+		loadRegistryCache(data)
+	save_game.close()
+	fillBaseCacheFields()
+
+const loadLockPath = "user://loadlock.lockfile" # Game creates this file when it starts loading. Then deletes it when it finishes loading. If this file exists -> the game crashed during the previous loading
+
+func doesLoadLockFileExist() -> bool:
+	var f:File = File.new()
+	return f.file_exists(loadLockPath)
+
+func createLoadLockFile():
+	var file = File.new()
+	file.open(loadLockPath, File.WRITE)
+	#file.store_string(content)
+	file.close()
+
+func deleteLoadLockFile():
+	if(doesLoadLockFileExist()):
+		var d:DirAccess = DirAccess.new()
+		d.remove(loadLockPath)
+		
+*/

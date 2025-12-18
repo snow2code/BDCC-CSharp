@@ -1,15 +1,92 @@
+using Godot;
+using System;
+using System.Collections.Generic;
+
+public class LaunchScreen : Control
+{
+	// Declare member variables here. Examples:
+	// private int a = 2;
+	// private string b = "text";
+	private RichTextLabel modDescriptionLabel;
+	private VBoxContainer modVList;
+	private ItemList modFileList;
+	private Button modDisableButton;
+	private Button debug_button;
+	private PanelContainer building_pck_panel;
+	private Panel troubleshooting_screen;
+
+	private PackedScene launchModEntryScene = (PackedScene)ResourceLoader.Load("res://UI/LaunchScreen/LaunchModEntry.tscn");
+
+	private List<Godot.Collections.Dictionary> currentModOrder = new List<Godot.Collections.Dictionary>();
+/* path = modPath, name = modPath.get_file(), disabled = false, */
+	
+	public override void _Ready()
+	{
+		modDescriptionLabel = GetNode<RichTextLabel>("VBoxContainer/HBoxContainer/VBoxContainer/PanelContainer2/VBoxContainer/RichTextLabel");
+		modVList = GetNode<VBoxContainer>("VBoxContainer/HBoxContainer/PanelContainer/VBoxContainer/ScrollContainer/ModList");
+		modFileList = GetNode<ItemList>("VBoxContainer/HBoxContainer/VBoxContainer/PanelContainer2/VBoxContainer/ModFileList");
+		modDisableButton = GetNode<Button>("VBoxContainer/HBoxContainer/VBoxContainer/PanelContainer2/VBoxContainer/HFlowContainer/ModDisableButton");
+		debug_button = GetNode<Button>($"%DebugButton");
+		building_pck_panel = GetNode<PanelContainer>($"%BuildingPCKPanel");
+		troubleshooting_screen = GetNode<Panel>($"%TroubleshootingScreen");
+		
+		// randomize()
+		// Logger.Log(DialogueParser.getLexems("Hello world. How;are|you. Hey, [[mean=fucker|bitch;kind=bro;person]]. Meow."));
+		// Logger.Log(diag.processString("Hello,_[[asd]]meow", {kind=true,mean=true}, {BITCH=["bitch", "stupid-bitch", "stupid-stupid-bitch"]}));
+		
+		building_pck_panel.Visible = false;
+		
+		/*
+		
+		if(GlobalTheme != null):
+			if(OS.has_touchscreen_ui_hint()):
+				GlobalTheme.rename_stylebox("scrollTouch", "scroll", "VScrollBar")
+		
+		var rawModList = GlobalRegistry.getRawModList()
+		if(GlobalRegistry.hasModSupport() && OS.get_name() == "Android" && (rawModList.size() > 0 || OPTIONS.shouldShowModdedLauncher())):
+			if(Util.readFile(pckversionPath) != GlobalRegistry.getGameVersionString()):
+				yield(generateBDCCpckFile(), "completed")
+				rawModList = GlobalRegistry.getRawModList()
+				
+		var SHOW_THIS_SCREEN_ANYWAY = false # DON'T FORGET TO CHANGE TO false BEFORE SHIPPING
+		
+		if(GlobalRegistry.doesLoadLockFileExist()): # Game crashed during loading last time
+			SHOW_THIS_SCREEN_ANYWAY = true
+			debug_button["custom_colors/font_color"] = Color.yellow
+		
+		if(OS.get_name() == "Android" || SHOW_THIS_SCREEN_ANYWAY):
+			$VBoxContainer/HBoxContainer/VBoxContainer/HBoxContainer/TestButton.visible = true
+		else:
+			$VBoxContainer/HBoxContainer/VBoxContainer/HBoxContainer/TestButton.visible = false
+		
+		if(OS.get_name() in ["Android", "HTML5"]):
+			$VBoxContainer/HBoxContainer/VBoxContainer/HBoxContainer/OpenModsFolder.visible = false
+		
+		if(!SHOW_THIS_SCREEN_ANYWAY && !OPTIONS.shouldShowModdedLauncher()):
+			if(!GlobalRegistry.hasModSupport() || rawModList.size() == 0):
+				#GlobalRegistry.registerEverything()
+				var _ok = get_tree().change_scene("res://UI/LoadingScreen.tscn")#"res://UI/MainMenu/MainMenu.tscn"
+
+		checkModOrderAndFillData(rawModList)
+		*/
+	}
+	
+	
+	
+	// Other
+	private void _on_WithModsButton_pressed()
+	{
+		Logger.Log("_on_WithModsButton_pressed");
+	}
+
+//  // Called every frame. 'delta' is the elapsed time since the previous frame.
+//  public override void _Process(float delta)
+//  {
+//      
+//  }
+}
+/*
 extends Control
-
-onready var modDescriptionLabel = $VBoxContainer/HBoxContainer/VBoxContainer/PanelContainer2/VBoxContainer/RichTextLabel
-onready var modVList = $VBoxContainer/HBoxContainer/PanelContainer/VBoxContainer/ScrollContainer/ModList
-onready var modFileList = $VBoxContainer/HBoxContainer/VBoxContainer/PanelContainer2/VBoxContainer/ModFileList
-onready var modDisableButton = $VBoxContainer/HBoxContainer/VBoxContainer/PanelContainer2/VBoxContainer/HFlowContainer/ModDisableButton
-onready var debug_button = $"%DebugButton"
-onready var building_pck_panel = $"%BuildingPCKPanel"
-
-onready var troubleshooting_screen = $"%TroubleshootingScreen"
-
-var launchModEntryScene = preload("res://UI/LaunchScreen/LaunchModEntry.tscn")
 
 var currentModOrder = []
 var selectedEntry = null
@@ -24,43 +101,6 @@ var startedPlaying:bool = false # Used to prevent the bug where you sometimes do
 
 # Called when the node enters the scene tree for the first time.
 func _ready():
-	#randomize()
-	#var diag:DialogueParser = DialogueParser.new()
-	#print(diag.getLexems("Hello world. How;are|you. Hey, [[mean=fucker|bitch;kind=bro;person]]. Meow."))
-	#print(diag.processString("Hello,_[[asd]]meow", {kind=true,mean=true}, {BITCH=["bitch", "stupid-bitch", "stupid-stupid-bitch"]}))
-	troubleshooting_screen.visible = false
-	building_pck_panel.visible = false
-	
-	if(GlobalTheme != null):
-		if(OS.has_touchscreen_ui_hint()):
-			GlobalTheme.rename_stylebox("scrollTouch", "scroll", "VScrollBar")
-	
-	var rawModList = GlobalRegistry.getRawModList()
-	if(GlobalRegistry.hasModSupport() && OS.get_name() == "Android" && (rawModList.size() > 0 || OPTIONS.shouldShowModdedLauncher())):
-		if(Util.readFile(pckversionPath) != GlobalRegistry.getGameVersionString()):
-			yield(generateBDCCpckFile(), "completed")
-			rawModList = GlobalRegistry.getRawModList()
-			
-	var SHOW_THIS_SCREEN_ANYWAY = false # DON'T FORGET TO CHANGE TO false BEFORE SHIPPING
-	
-	if(GlobalRegistry.doesLoadLockFileExist()): # Game crashed during loading last time
-		SHOW_THIS_SCREEN_ANYWAY = true
-		debug_button["custom_colors/font_color"] = Color.yellow
-	
-	if(OS.get_name() == "Android" || SHOW_THIS_SCREEN_ANYWAY):
-		$VBoxContainer/HBoxContainer/VBoxContainer/HBoxContainer/TestButton.visible = true
-	else:
-		$VBoxContainer/HBoxContainer/VBoxContainer/HBoxContainer/TestButton.visible = false
-	
-	if(OS.get_name() in ["Android", "HTML5"]):
-		$VBoxContainer/HBoxContainer/VBoxContainer/HBoxContainer/OpenModsFolder.visible = false
-	
-	if(!SHOW_THIS_SCREEN_ANYWAY && !OPTIONS.shouldShowModdedLauncher()):
-		if(!GlobalRegistry.hasModSupport() || rawModList.size() == 0):
-			#GlobalRegistry.registerEverything()
-			var _ok = get_tree().change_scene("res://UI/LoadingScreen.tscn")#"res://UI/MainMenu/MainMenu.tscn"
-
-	checkModOrderAndFillData(rawModList)
 
 func checkModOrderAndFillData(rawModList):
 	var loadedOrder = loadOrderFromFile()
@@ -348,7 +388,7 @@ func _on_ConfirmationDialog_confirmed():
 
 
 func _on_RichTextLabel_meta_clicked(meta):
-	var _ok = Util.fixed_shell_open(meta)
+	var _ok = OS.shell_open(meta)
 
 
 func _on_TestButton_pressed():
@@ -429,7 +469,7 @@ func _on_ModBrowser_closePressed():
 
 
 func _on_OpenModsFolder_pressed():
-	var _ok = Util.fixed_shell_open(ProjectSettings.globalize_path("user://mods"))
+	var _ok = OS.shell_open(ProjectSettings.globalize_path("user://mods"))
 
 func _input(event):
 	if(event.is_action_pressed("ui_down")):
@@ -538,7 +578,7 @@ func _on_BusyCloseButton_pressed():
 	busy_panel.visible = false
 
 func _on_BusyLabel_meta_clicked(meta):
-	var _ok = Util.fixed_shell_open(meta)
+	var _ok = OS.shell_open(meta)
 
 func _on_HTTPRequestMods_request_completed(_result: int, _response_code: int, _headers: PoolStringArray, _body: PoolByteArray):
 	if _result != HTTPRequest.RESULT_SUCCESS:
@@ -580,3 +620,4 @@ func _on_HTTPRequestMods_request_completed(_result: int, _response_code: int, _h
 		updateModList()
 		updateSelectedEntry()
 	
+*/
