@@ -17,3 +17,7 @@ logs/
 
 **/.mono/
 /.mono
+/.mono/
+**\.mono\
+\.mono
+\.mono\
