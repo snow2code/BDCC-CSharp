@@ -1,5 +1,4 @@
 using Godot;
-using Microsoft.SqlServer.Server;
 using System;
 
 public partial class Logger : Node
