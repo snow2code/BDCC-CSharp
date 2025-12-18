@@ -15,4 +15,4 @@ logs/
 /*.iml
 *.blend1
 
-.mono/temp
+.mono/
