@@ -19,6 +19,10 @@ public class LaunchScreen : Control
 
 	private List<Godot.Collections.Dictionary> currentModOrder = new List<Godot.Collections.Dictionary>();
 /* path = modPath, name = modPath.get_file(), disabled = false, */
+	private object selectedEntry = null;
+	
+	[Export]
+	private Resource GlobalTheme;
 	
 	public override void _Ready()
 	{
@@ -37,13 +41,26 @@ public class LaunchScreen : Control
 		building_pck_panel.Visible = false;
 		
 		/*
+		Snowy says: I am unsure if I can have mobile support. Godot C# is confusing.
+		Make a Github Issue or Pull Request if you found a way to do so.
+		I'd appreciate it! <3
 		
-		if(GlobalTheme != null):
-			if(OS.has_touchscreen_ui_hint()):
-				GlobalTheme.rename_stylebox("scrollTouch", "scroll", "VScrollBar")
+		(rename_stylebox is copied from the GDScript code btw -w-)
+		if ( GlobalTheme != null )
+			Logger.Log("GlobalTheme != null");
+			if ( OS.HasTouchscreenUiHint() )
+				GlobalTheme.rename_stylebox("scrollTouch", "scroll", "VScrollBar");
+		*/
+		var rawModList = GlobalRegistry.GetRawModList();
 		
-		var rawModList = GlobalRegistry.getRawModList()
-		if(GlobalRegistry.hasModSupport() && OS.get_name() == "Android" && (rawModList.size() > 0 || OPTIONS.shouldShowModdedLauncher())):
+		if ( GlobalRegistry.HasModSupport() && OS.GetName() == "Android" && rawModList.Count > 1 || OPTIONS.shouldShowModdedLauncher() )
+		{
+			Logger.Log("Show the Modded Launch screen");
+		}
+		/*
+		
+		
+		if(GlobalRegistry.hasModSupport() && OS.get_name() == "Android" && (rawModList.size() > 0 || )):
 			if(Util.readFile(pckversionPath) != GlobalRegistry.getGameVersionString()):
 				yield(generateBDCCpckFile(), "completed")
 				rawModList = GlobalRegistry.getRawModList()

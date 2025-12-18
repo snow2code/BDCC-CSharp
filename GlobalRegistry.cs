@@ -1,4 +1,5 @@
 using Godot;
+using System;
 using System.Collections.Generic;
 
 public partial class GlobalRegistry : Node
@@ -187,150 +188,38 @@ public partial class GlobalRegistry : Node
 		},
 	};
 	
+	private static bool modsSupport = false;
+	private static List<string> loadedMods;
+	
 	// No touchie! \\
 	// public Dictionary<string, PackedScene> scenes = new();
 	
-	
 	// Functions
-	public static void RegisterSceneFolder(string folder)
+	public static bool HasModSupport()
 	{
-		Directory dir = new Directory();
-		
-		if ( dir.Open(folder) != Error.Ok )
-		{
-			Logger.LogPrefix("Global Registry", "dir.Open(folder) != Error.Ok");
-		}
+		return modsSupport;
 	}
-
-// func registerSceneFolder(folder: String):
-// 	var dir = Directory.new()
-// 	if dir.open(folder) == OK:
-// 		dir.list_dir_begin()
-// 		var file_name = dir.get_next()
-// 		while file_name != "":
-// 			if dir.current_is_dir():
-// 				pass
-// 				#print("Found directory: " + file_name)
-// 			else:
-// 				if(file_name.get_extension() == "gd"):
-// 					var full_path = folder.plus_file(file_name)
-// 					#print("Registered scene: " + full_path)
-// 					registerScene(full_path)
-// 			file_name = dir.get_next()
-// 	else:
-// 		Log.printerr("An error occurred when trying to access the path "+folder)
-}
-
-/*
-
-var temporaryScenes: Dictionary = {}
-var sceneCreators: Dictionary = {}
-var bodyparts: Dictionary = {}
-var characterClasses: Dictionary = {}
-var attacks: Dictionary = {}
-var playerAttacksIDS: Array = []
-var statusEffects: Dictionary = {}
-var statusEffectsRefs: Dictionary = {}
-var statusEffectsCheckedForPC: Array = []
-var statusEffectsCheckedForNPC: Array = []
-var allSpecies: Dictionary = {}
-var items: Dictionary = {}
-var itemsRefs: Dictionary = {}
-var itemsByTag: Dictionary = {}
-var buffs: Dictionary = {}
-var events: Dictionary = {}
-var modules: Dictionary = {}
-var quests: Dictionary = {}
-var stats: Dictionary = {}
-var skills: Dictionary = {}
-var perks: Dictionary = {}
-var perksBySkillGroups: Dictionary = {}
-var perksObjects: Dictionary = {}
-var lustTopics: Dictionary = {}
-var lustTopicsObjects: Array = []
-var stageScenes: Dictionary = {}
-var stageScenesCachedStates: Dictionary = {}
-var lustActions: Dictionary = {}
-var defaultLustActions: Array = []
-var orgasmLustActions: Array = []
-var lootTables: Dictionary = {}
-var lootTablesClasses: Dictionary = {}
-var lootLists: Dictionary = {}
-var lootListsAll: Array = []
-var lootListsByCharacter: Dictionary = {}
-var lootListsByBattle: Dictionary = {}
-var fightClubFightersByRank: Dictionary = {}
-var fightClubFighters: Dictionary = {}
-var mapFloors: Dictionary = {}
-var imagePacks: Dictionary = {}
-var worldEdits: Dictionary = {}
-var regularWorldEdits: Array = []
-var sexActivities: Dictionary = {}
-var sexActivitiesReferences: Dictionary = {}
-var fetishes: Dictionary = {}
-var sexGoals: Dictionary = {}
-var sexTypes: Dictionary = {}
-var sexReactionHandlersByID: Dictionary = {}
-var gameExtenders: Dictionary = {}
-var computers: Dictionary = {}
-var fluids: Dictionary = {}
-var skins: Dictionary = {}
-var partSkins: Dictionary = {}
-var speechModifiers: Array = []
-var slaveBreakTasks: Dictionary = {}
-var slaveBreakTaskRefs: Dictionary = {}
-var slaveTypes: Dictionary = {}
-var slaveActions: Dictionary = {}
-var slaveEvents: Dictionary = {}
-var slaveActivities: Dictionary = {}
-var datapacks: Dictionary = {}
-var interactions: Dictionary = {}
-var interactionRefs: Dictionary = {}
-var globalTasks: Dictionary = {}
-var repStats:Dictionary = {}
-var auctionTraits:Dictionary = {}
-var auctionTraitsRefs:Dictionary = {}
-var auctionActions:Dictionary = {}
-var pawnTypes:Dictionary = {}
-var transformations:Dictionary = {}
-var transformationRefs:Dictionary = {}
-var transformationEffects:Dictionary = {}
-var nurseryTasks:Dictionary = {}
-var drugDenEvents:Dictionary = {}
-var drugDenEventRefs:Dictionary = {}
-var playerSlaveryDefs:Dictionary = {}
-var specialRelationships:Dictionary = {}
-var specialRelationshipRefs:Dictionary = {}
-
-var bodypartStorageNode
-
-var sceneCache: Dictionary = {}
-var codeblocksCache: Dictionary = {}
-var interactionGoalCache: Dictionary = {}
-var interactionGoalRefCache: Dictionary = {}
-
-var cachedDonationData = null
-var cachedLocalDonationData = null
-var donationDataRequest: HTTPRequest
-signal donationDataUpdated
-
-signal loadingUpdate(percent, whatsnext)
-signal loadingFinished
-
-var modsSupport = false
-var loadedMods = []
-
-var isInitialized = false
-
-func hasModSupport():
-	return modsSupport
-
-func getLoadedMods():
-	return loadedMods
+	
+	public static List<string> GetLoadedMods()
+	{
+		return loadedMods;
+	}
+	
+	public static string GetModsFolder()
+	{
+		var modsFolder = "user://mods"; // Default is user://mods
+		
+		if ( OS.GetName() != "Android" || true )
+		{
+			var externalDir = System.Environment.GetFolderPath(System.Environment.SpecialFolder.MyDocuments);
+			Logger.Log(externalDir);
+		}
+		
+		return modsFolder;
+	}
+	/*
 	
 func getModsFolder() -> String:
-	var modsFolder = "user://mods"
-	if(OS.get_name() == "Android"):
 		#var permissions: Array = OS.get_granted_permissions() #for Godot 3 branch
 		#if permissions.has("android.permission.READ_EXTERNAL_STORAGE"):
 		var externalDir:String = OS.get_system_dir(OS.SYSTEM_DIR_DOCUMENTS)
@@ -349,7 +238,18 @@ func getDatapacksFolder() -> String:
 		modsFolder = finalDir
 		var _ok = DirAccess.new().make_dir(modsFolder)
 	return modsFolder
+	*/
 	
+	public static List<String> GetRawModList()
+	{
+		var result = new List<String>();
+		
+		result.Add("user://mods/TestCSharpMod.zip");
+		
+		return result;
+	}
+	
+	/*
 func getRawModList():
 	var result = []
 	
@@ -373,7 +273,7 @@ func getRawModList():
 	else:
 		Log.printerr("An error occurred when trying to access the path "+modsFolder)
 	return result
-
+	
 func checkModSupport():
 	# If we're in editor we have to do this silly thing
 	# read more here: https://github.com/godotengine/godot/issues/19815
@@ -910,23 +810,34 @@ func createScene(id: String):
 	scene.name = scene.sceneID
 	return scene
 
-func registerSceneFolder(folder: String):
-	var dir = DirAccess.new()
-	if dir.open(folder) == OK:
-		dir.list_dir_begin()
-		var file_name = dir.get_next()
-		while file_name != "":
-			if dir.current_is_dir():
-				pass
-				#print("Found directory: " + file_name)
-			else:
-				if(file_name.get_extension() == "gd"):
-					var full_path = folder.plus_file(file_name)
-					#print("Registered scene: " + full_path)
-					registerScene(full_path)
-			file_name = dir.get_next()
-	else:
-		Log.printerr("An error occurred when trying to access the path "+folder)
+	*/
+	public static void RegisterSceneFolder(string folder)
+	{
+		Directory dir = new Directory();
+		
+		if ( dir.Open(folder) != Error.Ok )
+		{
+			Logger.LogPrefix("Global Registry", "dir.Open(folder) != Error.Ok");
+		}
+	}
+	/*
+// func registerSceneFolder(folder: String):
+// 	var dir = Directory.new()
+// 	if dir.open(folder) == OK:
+// 		dir.list_dir_begin()
+// 		var file_name = dir.get_next()
+// 		while file_name != "":
+// 			if dir.current_is_dir():
+// 				pass
+// 				#print("Found directory: " + file_name)
+// 			else:
+// 				if(file_name.get_extension() == "gd"):
+// 					var full_path = folder.plus_file(file_name)
+// 					#print("Registered scene: " + full_path)
+// 					registerScene(full_path)
+// 			file_name = dir.get_next()
+// 	else:
+// 		Log.printerr("An error occurred when trying to access the path "+folder)
 
 func registerBodypart(path: String):
 	var bodypart = load(path)
@@ -2901,4 +2812,108 @@ func deleteLoadLockFile():
 		var d:DirAccess = DirAccess.new()
 		d.remove(loadLockPath)
 		
+	*/
+}
+
+/*
+
+var temporaryScenes: Dictionary = {}
+var sceneCreators: Dictionary = {}
+var bodyparts: Dictionary = {}
+var characterClasses: Dictionary = {}
+var attacks: Dictionary = {}
+var playerAttacksIDS: Array = []
+var statusEffects: Dictionary = {}
+var statusEffectsRefs: Dictionary = {}
+var statusEffectsCheckedForPC: Array = []
+var statusEffectsCheckedForNPC: Array = []
+var allSpecies: Dictionary = {}
+var items: Dictionary = {}
+var itemsRefs: Dictionary = {}
+var itemsByTag: Dictionary = {}
+var buffs: Dictionary = {}
+var events: Dictionary = {}
+var modules: Dictionary = {}
+var quests: Dictionary = {}
+var stats: Dictionary = {}
+var skills: Dictionary = {}
+var perks: Dictionary = {}
+var perksBySkillGroups: Dictionary = {}
+var perksObjects: Dictionary = {}
+var lustTopics: Dictionary = {}
+var lustTopicsObjects: Array = []
+var stageScenes: Dictionary = {}
+var stageScenesCachedStates: Dictionary = {}
+var lustActions: Dictionary = {}
+var defaultLustActions: Array = []
+var orgasmLustActions: Array = []
+var lootTables: Dictionary = {}
+var lootTablesClasses: Dictionary = {}
+var lootLists: Dictionary = {}
+var lootListsAll: Array = []
+var lootListsByCharacter: Dictionary = {}
+var lootListsByBattle: Dictionary = {}
+var fightClubFightersByRank: Dictionary = {}
+var fightClubFighters: Dictionary = {}
+var mapFloors: Dictionary = {}
+var imagePacks: Dictionary = {}
+var worldEdits: Dictionary = {}
+var regularWorldEdits: Array = []
+var sexActivities: Dictionary = {}
+var sexActivitiesReferences: Dictionary = {}
+var fetishes: Dictionary = {}
+var sexGoals: Dictionary = {}
+var sexTypes: Dictionary = {}
+var sexReactionHandlersByID: Dictionary = {}
+var gameExtenders: Dictionary = {}
+var computers: Dictionary = {}
+var fluids: Dictionary = {}
+var skins: Dictionary = {}
+var partSkins: Dictionary = {}
+var speechModifiers: Array = []
+var slaveBreakTasks: Dictionary = {}
+var slaveBreakTaskRefs: Dictionary = {}
+var slaveTypes: Dictionary = {}
+var slaveActions: Dictionary = {}
+var slaveEvents: Dictionary = {}
+var slaveActivities: Dictionary = {}
+var datapacks: Dictionary = {}
+var interactions: Dictionary = {}
+var interactionRefs: Dictionary = {}
+var globalTasks: Dictionary = {}
+var repStats:Dictionary = {}
+var auctionTraits:Dictionary = {}
+var auctionTraitsRefs:Dictionary = {}
+var auctionActions:Dictionary = {}
+var pawnTypes:Dictionary = {}
+var transformations:Dictionary = {}
+var transformationRefs:Dictionary = {}
+var transformationEffects:Dictionary = {}
+var nurseryTasks:Dictionary = {}
+var drugDenEvents:Dictionary = {}
+var drugDenEventRefs:Dictionary = {}
+var playerSlaveryDefs:Dictionary = {}
+var specialRelationships:Dictionary = {}
+var specialRelationshipRefs:Dictionary = {}
+
+var bodypartStorageNode
+
+var sceneCache: Dictionary = {}
+var codeblocksCache: Dictionary = {}
+var interactionGoalCache: Dictionary = {}
+var interactionGoalRefCache: Dictionary = {}
+
+var cachedDonationData = null
+var cachedLocalDonationData = null
+var donationDataRequest: HTTPRequest
+signal donationDataUpdated
+
+signal loadingUpdate(percent, whatsnext)
+signal loadingFinished
+
+var modsSupport = false
+var loadedMods = []
+
+var isInitialized = false
+
 */
