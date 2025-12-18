@@ -2186,7 +2186,7 @@ _global_script_class_icons={
 
 [application]
 
-config/name="BDCC"
+config/name="BDCC (C#)"
 run/main_scene="res://UI/LaunchScreen/LaunchScreen.tscn"
 config/project_settings_override="user://override.cfg"
 run/flush_stdout_on_print=true
@@ -2313,6 +2313,10 @@ window_fullscreen={
 [logging]
 
 file_logging/enable_file_logging=true
+
+[mono]
+
+project/assembly_name="BDCC"
 
 [physics]
 
